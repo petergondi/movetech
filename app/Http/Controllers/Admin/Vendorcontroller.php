@@ -140,9 +140,6 @@ class Vendorcontroller extends Controller
                 'phonenumber.required'=>'Phone Number Format is Incorrect.',
                 ]);
            }
-                
-
-
                 if ($v->fails())
                 {
                     return redirect()->back()->withInput()->withErrors($v->errors());

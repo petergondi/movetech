@@ -29,21 +29,17 @@ class VendorLoginController extends Controller
     {
         $this->middleware('guest:vendor')->except('logout');
     }
-
-
     public function logout()
     {
         Auth::guard('vendor')->logout();
         return redirect('/');
     }
-
     public function loginform()
     {
         return view('vendor.login');
     }
     public function vendor_login(Request $request){
         $name=$request->name;
-        
         $user=Vendor::where('name',$name)->first();
         if($user){
             $encyrptedpssd=$request->encyrptedpssd;

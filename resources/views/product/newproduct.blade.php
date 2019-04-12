@@ -1,7 +1,7 @@
 @extends('vendorlayout2')
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
-<script src="{{ asset('/style/js/cropie.js')}}"></script>
+<script src="{{asset('style/js/cropie.js')}}"></script>
 
 <style>
     .cropit-preview {
@@ -140,6 +140,21 @@
                                                                     @if ($errors->has('currentcost'))
                                                                         <span class="help-block">
                                                                         <font color='red'>{{ $errors->first('currentcost') }}</font>
+                                                                    </span>
+                                                                    @endif
+                                                                
+                                                                </small>
+                                                            </div>
+                                                        </div>
+                                                          <div class="row form-group">
+                                                            <div class="col col-md-3"><label for="text-input" class=" form-control-label">Number of Products</label></div>
+                                                            <div class="col-12 col-md-9">
+                                                                <input type="text" id="product_count" value="{{ old('product_count') }}" name="product_count" placeholder="Number of Products" class="form-control">
+                                                                <small class="form-text text-muted">
+                                                                
+                                                                    @if ($errors->has('product_count'))
+                                                                        <span class="help-block">
+                                                                        <font color='red'>{{ $errors->first('product_count') }}</font>
                                                                     </span>
                                                                     @endif
                                                                 

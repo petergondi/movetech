@@ -61,6 +61,7 @@ class ProductController extends Controller
         $currentcost=$request->currentcost;
         $productfeatures=$request->productfeatures;
         $productdescription=$request->productdescription;
+        $productcount=$request->product_count;
         $imageurl=$request->file('imageurl');
         $image = $request->get('image-data');
 
@@ -69,6 +70,7 @@ class ProductController extends Controller
             'category' => 'required',
             'currentcost'=> 'required',
             'productfeatures' => 'required',
+            'product_count'=>'required',
             'productdescription'=> 'required',
            'imageurl'=>'required|image|mimes:jpeg,png,jpg|max:2048',
         ]);
@@ -78,13 +80,13 @@ class ProductController extends Controller
             return redirect()->back()->withInput()->withErrors($v->errors());
         }
 
-        $productresult=Product::where('name',Auth::user()->name)->where('productname',$productname)->first();
+        $productresult=Product::where('id',Auth::user()->id)->where('productname',$productname)->first();
         if($productresult){
             $request->session()->flash('alert-success', 'Product Exist with that Name.');
             return redirect()->back()->withInput();
         }
         
-        $result=Vendor::where('name',Auth::user()->name)->first();
+        $result=Vendor::where('id',Auth::user()->id)->first();
         $bussinessname=$result->bussinessaliasname;
 
         $infor=base64_decode(preg_replace('#^data:image/\w+;base64,#i','',$image));
@@ -102,6 +104,7 @@ class ProductController extends Controller
         $post->subcategory = $subcategory;
         $post->productfeatures = $productfeatures;
         $post->productdescription=$productdescription;
+        $post->productcount=$productcount;
         $post->currentcost = $currentcost;
         $post->imageurl = $safeName;
         $post->save();
@@ -135,6 +138,7 @@ class ProductController extends Controller
         $currentcost=$request->currentcost;
         $productfeatures=$request->productfeatures;
         $productdescription=$request->productdescription;
+        $productcount= $request->product_count;
         $imageurl=$request->file('imageurl');
         $image = $request->get('image-data');
 
@@ -143,6 +147,7 @@ class ProductController extends Controller
             'category' => 'required',
             'currentcost'=> 'required',
             'productfeatures' => 'required',
+            'product_count' => 'required',
             'productdescription'=> 'required',
            'imageurl'=>'image|mimes:jpeg,png,jpg|max:2048',
         ]);
@@ -158,10 +163,10 @@ class ProductController extends Controller
                 
                 $infor=base64_decode(preg_replace('#^data:image/\w+;base64,#i','',$image));
 
-                $folderName = '/imageupload/';
+                $folderName = 'imageupload/';
                 $safeName = str_random(10).'.'.'png';
                 $destinationPath = public_path() . $folderName;
-                file_put_contents(public_path().'/imageupload/'.$safeName, $infor);
+                file_put_contents(public_path().'imageupload/'.$safeName, $infor);
 
                 Product::where('id',$id)->update(['productname'=>$productname,'category'=>$category,
                 'subcategory'=>$subcategory,'productfeatures'=>$productfeatures,'productdescription'=>$productdescription,

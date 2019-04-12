@@ -11,7 +11,7 @@
     <title>Church System</title>
 
     <!-- Styles -->
-    <link href="{{ asset('public/css/app.css') }}" rel="stylesheet">
+    <link href="{{ asset('css/app.css') }}" rel="stylesheet">
 </head>
 <body>
 <div id="app">

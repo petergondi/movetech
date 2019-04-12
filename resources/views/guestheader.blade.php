@@ -45,7 +45,22 @@
 								<!-- <li><a href="#"><i class="fa fa-star"></i> Wishlist</a></li> -->
 								<li><a href="{{route('proceedtocheckout')}}"><i class="fa fa-crosshairs"></i> Checkout</a></li>
 								<li><a href="{{route('viewcart')}}"><i class="fa fa-shopping-cart"></i> Cart ({{$count}})</a></li>
-								<li><a href="{{route('customer_logout')}}"><i class="fa fa-lock"></i> Logout</a></li>
+
+								  <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Welcome,  {{Auth::user()->name}}<b class="caret"></b></a>
+                    <div class="dropdown-menu">
+                     <ul class="list-unstyled">
+                    <li>
+                        <a role="menuitem" tabindex="-1" href=""><i class="fa fa-user"></i> My Profile</a>
+                    </li>
+                    <li>
+                        <a role="menuitem" tabindex="-1" href="#" data-lock-screen="true"><i class="fa fa-lock"></i> Lock Screen</a>
+                    </li>
+                    <li>
+                    <a role="menuitem" tabindex="-1" href="{{route('customer_logout')}}"><i class="fa fa-power-off"></i> Logout</a>
+                    </li>
+                </ul>
+                        </div>
+                    </li>
 							</ul>
 						</div>
 					</div>

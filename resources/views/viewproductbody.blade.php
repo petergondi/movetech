@@ -26,6 +26,7 @@
                                                                 </strike></h2>
                                                                     
                                                             <p><b>{{$result->productname}}</b></p>
+                                                              <p><b>Instock:{{$result->productcount}}</b></p>
                                                             <p><font color='blue'><b>{{$result->bussinessname}}</b> </font></p>
                                                         </div> </a>
                                                        <hr>

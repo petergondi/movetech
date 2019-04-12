@@ -3,7 +3,6 @@
 							use App\Subcategory;
 						?>
 @extends('viewproductslayout')
-
 @section('content')  
    
                 <div class='row' >
@@ -56,9 +55,7 @@
                                        <div class="col-sm-7" >
                                             <div class="row" >
                                                 <div  class="col-sm-4" ><center>
-                                                <br><br><br><img style="height:40%;width:40%" src="{{asset("public/imageupload/".$products->imageurl)}}" alt="" />
-                                                    <br><img style="height:40%;width:40%" src="{{asset("public/imageupload/".$products->imageurl)}}" alt="" />
-                                                    <br><img style="height:40%;width:40%" src="{{asset("public/imageupload/".$products->imageurl)}}" alt="" />
+                                                <br><br><br><img style="height:400px;width:250px;margin-left:120px;" src="{{asset("imageupload/".$products->imageurl)}}" alt="" />
                                                     </center>
                                                 </div>
                                                 <div  class="col-sm-8" >
@@ -119,6 +116,12 @@
                                                 </div>
                                                 
                                                 </form>
+                                                  <div class="row" >
+                                                    <div  class="col-sm-2" >
+                                                        <font style="font-size:13px;"><p><b>Instock:{{$products->productcount}}</b></p></font> 
+                                                    </div>
+                                                </div>
+                                                
                                             <hr>
                                             <div class="row" >
                                                 <div  class="col-sm-4" >

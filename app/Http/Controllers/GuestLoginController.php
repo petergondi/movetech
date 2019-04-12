@@ -54,7 +54,7 @@ class GuestLoginController extends Controller
         $vendors=DB::select( DB::raw( "SELECT * FROM vendors ORDER BY priority  + 0 DESC" ) );
         $leftcategories=DB::select( DB::raw("SELECT * FROM categories ORDER BY priority  + 0 DESC") );
         
-        return view('loginform')->with(compact('results','vendors','leftcategories','id'));
+        return view('loginform')->with(compact('vendors','leftcategories','id'));
     }
 
     public function showloginform()
@@ -66,7 +66,7 @@ class GuestLoginController extends Controller
         $vendors=DB::select( DB::raw( "SELECT * FROM vendors ORDER BY priority  + 0 DESC" ) );
         $leftcategories=DB::select( DB::raw("SELECT * FROM categories ORDER BY priority  + 0 DESC") );
         
-        return view('loginform')->with(compact('results','vendors','leftcategories','id'));
+        return view('loginform')->with(compact('vendors','leftcategories','id'));
     }
 
     public function registerform(Request $request){
@@ -81,7 +81,7 @@ class GuestLoginController extends Controller
         $vendors=DB::select( DB::raw( "SELECT * FROM vendors ORDER BY priority  + 0 DESC" ) );
         $leftcategories=DB::select( DB::raw("SELECT * FROM categories ORDER BY priority  + 0 DESC") );
         
-        return view('loginform')->with(compact('results','vendors','leftcategories','id'));
+        return view('loginform')->with(compact('vendors','leftcategories','id'));
     }
 
 

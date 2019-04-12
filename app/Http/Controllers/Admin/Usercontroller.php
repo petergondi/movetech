@@ -108,12 +108,9 @@ class Usercontroller extends Controller
         $post->save();
 
       // $this->directmessage( $phonenumber,$email, $password,$fname, $name);
-
-
       $request->session()->flash('alert-warning', 'Account Created.');
      
      return redirect()->back();
-
     }
     public function directmessage( $phonenumber,$email, $password,$fname, $name){
         $message ="Dear ".$fname." Account info: Username: " .$name." Password: ".$password;
@@ -126,8 +123,6 @@ class Usercontroller extends Controller
             set_time_limit(10000);
 
             $url="https://sms.movesms.co.ke/api/portalcompose?";
-            
-
             $postData = array(
             //  'action' => 'compose',
                 'username' => $username,
