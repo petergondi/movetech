@@ -7,7 +7,6 @@ use App\Product;
 use App\Vendor;
 use DB;
 use Illuminate\Support\Facades\Cache;
-
 class GuestController extends Controller
 {
     public function index()

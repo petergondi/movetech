@@ -1,6 +1,44 @@
 @extends('adminlayout')
+@extends('report.base')
 @section('content')   
-
+<!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content ">
+      <div class="modal-header alert alert-success" role="alert">
+        <h5 class="modal-title" id="exampleModalLabel">Approved Order</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true">&times;</span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form class="form-inline">
+  <div class="form-group col-3">
+     <label for="staticEmail2">From</label>
+    <input type="text" class="form-control" name="date" id="date" placeholder="yy/mm/dd">
+  </div>
+  <div class="form-group col-3">
+     <label for="staticEmail2">To</label>
+    <input type="text" class="form-control" name="date1" id="date1" placeholder="yy/mm/dd">
+  </div>
+   <div class="form-group col-3">
+     <label for="staticEmail2">File type</label>
+    <select class="form-control-sm">
+  <option value="" selected="selected">Select</option>
+  <option value="2">PDF</option>
+  <option value="3">EXCEL</option>
+</select>
+  </div>
+</form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn  btn-sm btn-secondary" data-dismiss="modal">Close</button>
+      <button type="button" id="export" class="btn  btn-sm btn-primary"><i class="fa fa-download"></i>Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+<!--endmodal-->
             <!-- Animated -->
             <div class="animated fadeIn">
                 
@@ -9,7 +47,7 @@
                             <div class="col-md-12">
                                 <div class="card">
                                     <div class="card-header">
-                                        <strong class="card-title">ALl Approved Order</strong>
+                                        <strong class="card-title">All Approved Order</strong>
                                     </div>
                                     <div class="card-body">
                                         <center>
@@ -26,7 +64,7 @@
                                             @endforeach
                                             
                                         </center>
-
+ <button type="button" class="btn btn-sm btn-create pull-right bg-success" data-toggle="modal" data-target="#exampleModal"><i class="fa fa-file"></i>Export</button>
                                         <table id="bootstrap-data-table" class="table table-striped table-bordered">
                                             <thead>
                                                 <tr>
@@ -93,6 +131,23 @@
                 return false;
             }
         }
+   $('#date').datepicker(options);
+    $('#date1').datepicker(options);
+         $('#export').on('click', function(e) {
+    e.preventDefault();
+       var from = $('#date').val();
+       var to = $('#date1').val();
+       $.ajax({
+           type: "get",
+           url:'{{URL::to('admin/approved-orders/export')}}',
+           data: {from:from, to:to,_token: '{!! csrf_token() !!}'},
+           success:function(data){
+            // $('#date').val("");
+            //$('#date1').val("");
+            console.log(data);
+        }
+        });
+       });
 
 </script>
         

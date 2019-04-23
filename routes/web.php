@@ -63,8 +63,6 @@ Route::get('check-out', 'GuestCustomerHomeController@proceedto_checkout')->name(
 Route::post('check-out', 'GuestCustomerHomeController@confirmorder')->name('confirm_order');
 
 
-
-
 //admin login routes
 Route::get('/adminlogin',  'Admin\LoginController@showLoginForm')->name('admlogin');
 Route::post('/adminlogin', 'Admin\LoginController@login')->name('admin_login');
@@ -166,13 +164,18 @@ Route::prefix('admin')->group(function (){
     //admineditcapping
     Route::get('/edit-capping-systems', 'Admin\SMSController@editcappingsettings')->name('admineditcapping');
     Route::get('/delete-capping-systems', 'Admin\SMSController@deletecapping_record')->name('deletecappingrecord');
-
     //admincustomer
-    Route::get('/customers', 'Admin\CustomerController@showcustomer')->name('admincustomer');
+    Route::get('/customers', 'CustomerController@showcustomer')->name('admincustomer');
     //adminallcartorder
-    Route::get('/all-order', 'Admin\CustomerController@allcartorder')->name('adminallcartorder');
+    Route::get('/all-order', 'CustomerController@allcartorder')->name('adminallcartorder');
     //adminapprovedorder
-    Route::get('/approved-order', 'Admin\CustomerController@allapprovedorder')->name('adminapprovedorder');
+    Route::get('/approved-order', 'CustomerController@allapprovedorder')->name('adminapprovedorder');
+    //export to pdf
+    Route::get('/all-order/export', 'Admin\AdminReportController@allOrder')->name('admin.all-order.export');
+    //approved orders
+    Route::get('/approved-orders/export', 'Admin\AdminReportController@approvedOrders')->name('admin.approved-orders.export');
+    //customers
+    Route::get('/customers/export', 'Admin\AdminReportController@customers')->name('admin.customers.export');
     
 
 });

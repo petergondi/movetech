@@ -46,6 +46,9 @@
 								Keep me signed in
 							</span>
 							<button type="submit" class="btn btn-default">Login</button>
+                            	<span>
+								<a href="{{route('password.request') }}">Forgot password?</a>
+							</span>
 						</form>
 					</div><!--/login form-->
 				</div>

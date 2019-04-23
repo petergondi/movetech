@@ -32,7 +32,7 @@ use Illuminate\Support\Facades\Cache;
 
 <body>
 
-	@include('guestheader1')
+	@include('guestheader')
 	
 	<section>
 		<div class="container">

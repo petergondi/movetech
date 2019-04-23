@@ -1,8 +1,6 @@
 <?php
 
-namespace App\Http\Controllers\Admin;
-
-use App\Http\Controllers\Controller;
+namespace App\Http\Controllers;
 use App\MailSetting;
 use App\User;
 use App\EmailSetting;
