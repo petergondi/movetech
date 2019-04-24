@@ -28,6 +28,7 @@ class GuestCustomerHomeController extends Controller
         $this->middleware('auth');
     }
 
+    protected $cachedtotalcosts;
     public function customerhome()
     {
             //return Auth::user()->name;
@@ -214,7 +215,7 @@ class GuestCustomerHomeController extends Controller
         $leftcategories=DB::select( DB::raw("SELECT * FROM categories ORDER BY priority  + 0 DESC") );
 
         return view('viewcart')->with(compact('vendors','categories','leftcategories','allproducts','cachedtotalcost','count'));
-            
+         //return  $allproducts; 
     }
 
     public function proceedto_checkout(Request $request){
@@ -354,5 +355,28 @@ class GuestCustomerHomeController extends Controller
             curl_close($ch);
         }
 
+    }
+    public function removeItem(Request $request){
+        //$id=$request->id;
+        $id = 22;
+        $cache = Cache::get('cartproducts'); //pull retrives the value and removes it
+        foreach ($cache as $key) {
+            if($key->id=22){
+        $rel=$key->totalcost;
+            }
+            else{
+                $rel=0;
+            }
+        }
+        //$key = array_search($id, array_column($cache, 'id'));
+        //unset($cache[$key]);
+      // $//allproducts= Cache::put('cartproducts',$cache);
+        //$allproducts = Cache::get('cartproducts');
+        //$cachedtotalcost = array_sum(array_column($allproducts, 'totalcost'))-$item->totalcost;          
+        //$id=$request->id;
+        //$items = Cart::where('id',$id)->pluck('totalcost');
+        //Cart::where('productid', $id)->delete();
+        return response($cache);
+        //return $allproducts;
     }
 }

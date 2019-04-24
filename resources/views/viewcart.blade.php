@@ -4,6 +4,10 @@
 @extends('viewproductslayout')
 
 @section('content')  
+<script src="{{asset('https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js')}}"></script>
+  <script type="text/javascript" src="{{asset('https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js')}}"></script>
+<link rel="stylesheet" href="{{asset('http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css')}}">
+<link rel="stylesheet" href="{{asset('https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css')}}"/>
  
         <div class='row' >
                     <div class="col-sm-12" >
@@ -38,6 +42,7 @@
                                         <th>Quantity</th>
                                         <th>Unit/Piece</th>
                                         <th>Sub-Total</th>
+                                        <th>Remove</th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -67,6 +72,7 @@
                                                         <td> {{$allproduct->pieces}} </td>
                                                         <td> <b>Ksh {{number_format($allproduct->costperpiece)}} </b></td>
                                                         <td><b> Ksh {{number_format($allproduct->totalcost)}} </b></td>
+                                                         <td><button class="btn btn-danger btn-xs remove" data-id="{{$allproduct->id}}" data-title="remove" data-toggle="modal" data-target="#remove" ><span class="glyphicon glyphicon-remove"></span></button></td>
                                                     </tr>
                                                 @endforeach
                                                 
@@ -126,6 +132,33 @@
                                 </table>
                     </div>
         </div>
+        <script>
+          $(".remove").click(function(){
+        var id = $(this).data("id");
+        var token = $("meta[name='csrf-token']").attr("content");
+        var tr = $(this).closest('tr');
+        var confirmation = confirm("are you sure you want to remove this item from cart?");
+        //if ( confirm("Do you want to Delete?")) {
+    // If you pressed OK!";
+     if (confirmation) {
+
+        $.ajax(
+        {
+            type: 'get',
+           url:'{{URL::to('remove')}}',
+            data: {id:id,_token: '{!! csrf_token() !!}'},
+            success: function (data)
+          {
+               //$('#del').text(data.totalcost);
+               alert(data);
+                tr.fadeOut(1000, function(){
+                        $(this).remove();
+                    });
+            },
+        });
+         }
+    });
+        </script>
 
         
 @endsection

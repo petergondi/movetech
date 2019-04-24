@@ -75,7 +75,7 @@ class AdminReportController extends Controller
         ];
     
         // Generate Report with flexibility to manipulate column class even manipulate column value (using Carbon, etc).
-         $csv= ExcelReport::of($title, $meta, $queryBuilder, $columns)
+         return ExcelReport::of($title, $meta, $queryBuilder, $columns)
                         ->editColumns(['totalcost','status'], [ // Mass edit column
                             'class' => 'right bolder  italic-red'
                         ]) ->setOrientation('portrait')
