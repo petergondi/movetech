@@ -1,3 +1,4 @@
+
                         <?php
 							use App\Category;
 							use App\Subcategory;
@@ -134,6 +135,7 @@
                                                                             Ksh 1000
                                                                         @endif
                                                     </p></font></strike>
+                                                      <a href="/share">share</a>
                                                 </div>
                                                 <div  class="col-sm-4" >
                                                     
@@ -147,6 +149,7 @@
                             </div>
                     </div>
                 </div>
+              
 
                 
                 <div class='row' >
@@ -197,7 +200,7 @@
                         var size=$('#size').val();
                         var color=$('#color').val();
                         var pieces =$('#pieces').val();
-                        var idd =$('#idd').val();
+                        var idd =id;//$('#idd').val();
                      
                         $.ajax({
                             url:'{{route('addproducttocart')}}',

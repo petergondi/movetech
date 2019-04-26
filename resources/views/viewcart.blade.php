@@ -72,6 +72,7 @@
                                                         <td> {{$allproduct->pieces}} </td>
                                                         <td> <b>Ksh {{number_format($allproduct->costperpiece)}} </b></td>
                                                         <td><b> Ksh {{number_format($allproduct->totalcost)}} </b></td>
+                                                          <td><b>{{number_format($allproduct->id)}} </b></td>
                                                          <td><button class="btn btn-danger btn-xs remove" data-id="{{$allproduct->id}}" data-title="remove" data-toggle="modal" data-target="#remove" ><span class="glyphicon glyphicon-remove"></span></button></td>
                                                     </tr>
                                                 @endforeach

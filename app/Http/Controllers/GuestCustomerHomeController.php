@@ -29,14 +29,14 @@ class GuestCustomerHomeController extends Controller
     }
 
     protected $cachedtotalcosts;
+    protected $url;
     public function customerhome()
     {
+        $this->url="ww.bbc.com";
             //return Auth::user()->name;
             $vendors=DB::select( DB::raw( "SELECT * FROM vendors ORDER BY priority  + 0 DESC" ) );
             $categories=DB::select( DB::raw("SELECT * FROM categories ORDER BY priority  + 0 DESC limit 5 ") );
             $leftcategories=DB::select( DB::raw("SELECT * FROM categories ORDER BY priority  + 0 DESC") );
-
-            
             $productids =Cache::get('productid');
 
             if($productids!=''){
@@ -57,12 +57,16 @@ class GuestCustomerHomeController extends Controller
 
         
     }
+    public function share(){
+        return $this->url;//\Share::load($this->url, 'My example')->facebook();
+    }
 
     public function addproduct_tocart(Request $request){
         $size=$request->size;
         $color=$request->color;
         $pieces=$request->pieces;
         $id=$request->idd;
+        $item_in_cart_id=Cart::max('id');
         if($pieces==''){
             $noofpieces=1;
         }else{
@@ -246,7 +250,6 @@ class GuestCustomerHomeController extends Controller
         $allproducts = Cache::get('cartproducts');
         if($allproducts){
             $cachedtotalcost=array_sum(array_column($allproducts, 'totalcost'));
-
             $post = new CartOrder;
             $post->customername = Auth::user()->fname;
             $post->phonenumber = Auth::user()->phonenumber;
@@ -286,15 +289,10 @@ class GuestCustomerHomeController extends Controller
             }else{
                 $maxcap=$balance;
             }
-
             $customercapbalance=$maxcap-$cachedtotalcost;
             User::where('name',Auth::user()->name)->update(['balance'=>$customercapbalance]);
-
             Cache::forget('cartproducts');
-
-
             $this->directmessage( Auth::user()->phonenumber, Auth::user()->fname,$id);
-
             $request->session()->flash('alert-success', 'Order Created Successfully');
             return redirect()->route('viewcart');
 
@@ -357,17 +355,16 @@ class GuestCustomerHomeController extends Controller
 
     }
     public function removeItem(Request $request){
-        //$id=$request->id;
-        $id = 22;
-        $cache = Cache::get('cartproducts'); //pull retrives the value and removes it
-        foreach ($cache as $key) {
-            if($key->id=22){
-        $rel=$key->totalcost;
-            }
-            else{
-                $rel=0;
-            }
+        $id=$request->id;
+        $caches = Cache::get('cartproducts'); //pull retrives the value and removes it
+        foreach($caches as $cache){
+         if($cache->id=22){
+             Cache::forget($cache->id);
+         }
         }
+        $product = Cache::forget('28');
+        $cache = Cache::get('cartproducts');
+        //$cachedtotalcost = array_sum(array_column($cache, 'totalcost'));
         //$key = array_search($id, array_column($cache, 'id'));
         //unset($cache[$key]);
       // $//allproducts= Cache::put('cartproducts',$cache);

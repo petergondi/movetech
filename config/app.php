@@ -180,6 +180,8 @@ return [
         'Maatwebsite\Excel\ExcelServiceProvider',
         Codedge\Fpdf\FpdfServiceProvider::class,
         Rap2hpoutre\LaravelLogViewer\LaravelLogViewerServiceProvider::class,
+        Chencha\Share\ShareServiceProvider::class,
+        Jorenvh\Share\Providers\ShareServiceProvider::class,
     ],
 
     /*
@@ -230,6 +232,8 @@ return [
         'View' => Illuminate\Support\Facades\View::class,
         'Excel' => 'Maatwebsite\Excel\Facades\Excel',
         'Fpdf' => Codedge\Fpdf\Facades\Fpdf::class,
+        'Share' => Chencha\Share\ShareFacade::class,
+        'Share' => Jorenvh\Share\ShareFacade::class,
 
     ],
 

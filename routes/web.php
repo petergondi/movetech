@@ -62,6 +62,8 @@ Route::get('view-cart', 'GuestCustomerHomeController@vi_ew_cart')->name('viewcar
 Route::get('remove', 'GuestCustomerHomeController@removeItem')->name('remove');
 Route::get('check-out', 'GuestCustomerHomeController@proceedto_checkout')->name('proceedtocheckout');
 Route::post('check-out', 'GuestCustomerHomeController@confirmorder')->name('confirm_order');
+//share
+Route::get('/share','GuestCustomerHomeController@share');
 
 
 //admin login routes

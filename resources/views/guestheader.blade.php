@@ -9,7 +9,6 @@
 							}else{
 								$count=0;
 							}
-							
 						?>
 		
 	@if( Auth::check() )
@@ -45,7 +44,6 @@
 								<!-- <li><a href="#"><i class="fa fa-star"></i> Wishlist</a></li> -->
 								<li><a href="{{route('proceedtocheckout')}}"><i class="fa fa-crosshairs"></i> Checkout</a></li>
 								<li><a href="{{route('viewcart')}}"><i class="fa fa-shopping-cart"></i> Cart ({{$count}})</a></li>
-
 								  <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">Welcome,  {{Auth::user()->name}}<b class="caret"></b></a>
                     <div class="dropdown-menu">
                      <ul class="list-unstyled">
@@ -101,7 +99,7 @@
 								<li><a href="#"><i class="fa fa-user"></i> Account</a></li>
 								<!-- <li><a href="#"><i class="fa fa-star"></i> Wishlist</a></li> -->
 									<li><a href="{{route('proceedtocheckout')}}"><i class="fa fa-crosshairs"></i> Checkout</a></li>
-									<li><a href="{{route('viewcart')}}"><i class="fa fa-shopping-cart"></i> Cart({{$count}})</a></li>
+									<li><a href="{{route('viewcart')}}"><i class="fa fa-shopping-cart"></i> Cart({{$count=0}})</a></li>
 									<li><a href="{{route('show_loginform')}}"><i class="fa fa-lock"></i> Login</a></li>
 							</ul>
 						</div>

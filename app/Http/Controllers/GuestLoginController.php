@@ -50,10 +50,8 @@ class GuestLoginController extends Controller
         }if($id==''){
             $id='';
         }
-        
         $vendors=DB::select( DB::raw( "SELECT * FROM vendors ORDER BY priority  + 0 DESC" ) );
         $leftcategories=DB::select( DB::raw("SELECT * FROM categories ORDER BY priority  + 0 DESC") );
-        
         return view('loginform')->with(compact('vendors','leftcategories','id'));
     }
 
