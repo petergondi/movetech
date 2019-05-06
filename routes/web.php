@@ -20,7 +20,8 @@ Auth::routes();
 //user login routes
 // Route::get('home', 'HomeController@index')->name('home');
 // Route::get('/home/logout', 'Auth\LoginController@userlogout')->name('user.logout');
-
+//test
+Route::get('/mpesa', 'MpesaController@stk_push')->name('mpesa');
 
 Route::get('/', 'GuestController@index')->name('home');
 
@@ -51,6 +52,8 @@ Route::get('/customer-login', 'GuestLoginController@loginform')->name('customerl
 Route::get('/customer-register', 'GuestLoginController@registerform')->name('form_register');
 Route::post('customer-register', 'GuestLoginController@saveregisteruser')->name('customer_register');
 
+
+
 //customer_activateacc
 Route::get('customer-activate-acc', 'GuestController@index')->name('customeractivateacchome');
 Route::post('customer-activate-acc', 'GuestLoginController@customeractivateacc')->name('customer_activateacc');
@@ -66,6 +69,8 @@ Route::get('view-cart', 'GuestCustomerHomeController@vi_ew_cart')->name('viewcar
 Route::get('remove', 'GuestCustomerHomeController@removeItem')->name('remove');
 Route::get('check-out', 'GuestCustomerHomeController@proceedto_checkout')->name('proceedtocheckout');
 Route::post('check-out', 'GuestCustomerHomeController@confirmorder')->name('confirm_order');
+//testing
+Route::get('mpesa', 'GuestCustomerHomeController@stk_push')->name('mpesa');
 //share
 Route::get('/share','GuestCustomerHomeController@share');
 

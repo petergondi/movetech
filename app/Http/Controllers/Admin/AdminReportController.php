@@ -152,7 +152,7 @@ public function vendors(Request $request)
 {
     $fromDate =strval($request->from);
     $toDate =strval($request->to);
-
+ 
     $title = 'List of Vendors'; // Report title
 
     $meta = [ // For displaying filters description on header

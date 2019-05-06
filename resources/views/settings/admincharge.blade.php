@@ -3,10 +3,8 @@
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
 <script src="{{ asset('public/style/js/cropie.js')}}"></script>
 @section('content')   
-
             <!-- Animated -->
             <div class="animated fadeIn">
-                
                 <div class="row">
 
                             <div class="col-md-12">
