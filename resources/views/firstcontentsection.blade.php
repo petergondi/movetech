@@ -11,12 +11,12 @@ use App\Product;
                                     
                                     if (Cache::has('trendingproducts')){
                                         Cache::forget('trendingproducts');
-                                        $producties=Product::where('username','4PAY')->where('category','Trending This Week')->orderBy('id','disc')->take(8)->get();
+                                        $producties=Product::where('username','4PAY')->where('category','Trending This Week')->orderBy('id','desc')->take(8)->get();
                                         Cache::put('trendingproducts', $producties, 10);
                                         $trendingproducts =Cache::get('trendingproducts');
                                     } else {
                                         
-                                       $producties=Product::where('username','4PAY')->where('category','Trending This Week')->orderBy('id','disc')->take(8)->get();
+                                       $producties=Product::where('username','4PAY')->where('category','Trending This Week')->orderBy('id','desc')->take(8)->get();
                                         Cache::put('trendingproducts', $producties, 10);//in minutes 10.
                                         $trendingproducts =Cache::get('trendingproducts');
                                     }

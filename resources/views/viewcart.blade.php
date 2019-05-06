@@ -83,6 +83,12 @@
                                                         <td colspan=3> <center>Sub-Total </center> </td>
                                                         <td colspan=2> <b>Ksh {{number_format($cachedtotalcost)}} </b></td>
                                                 <tr>
+                                                 <tr>
+                                                        <td> </td>
+                                                        <td> </td>
+                                                        <td colspan=3> <center>Admin Fee </center> </td>
+                                                        <td colspan=2> <b>Ksh {{number_format($adminfee)}} </b></td>
+                                                <tr>
                                                 <tr>
                                                         <?php
                                                         $taxamount=round((0.16*$cachedtotalcost),2);
@@ -151,7 +157,7 @@
             success: function (data)
           {
                //$('#del').text(data.totalcost);
-               alert(data);
+               console.log(data);
                 tr.fadeOut(1000, function(){
                         $(this).remove();
                     });

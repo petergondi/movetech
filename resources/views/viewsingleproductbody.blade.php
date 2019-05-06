@@ -85,9 +85,7 @@
                                                 @else
                                                   
                                                    <font style="font-size:13px"><p>: {{$productdescription}}</p></font>
-                                                @endif
-                                                
-                                                
+                                                @endif  
 						                        <form action="#" >
                                                 <input type="hidden" name='idd' id='idd' value="{{$products->id}}"/>
                                                 <div class="row" >

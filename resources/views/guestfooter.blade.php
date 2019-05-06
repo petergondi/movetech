@@ -1,4 +1,7 @@
-	
+	<meta name="csrf-token" content="{{ csrf_token() }}">
+<script src="{{('http://code.jquery.com/jquery-3.3.1.min.js')}}">
+      </script>
+      <script src="{{asset('http://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js')}}"></script>
 	<footer id="footer"><!--Footer-->
 		<div class="footer-top">
 			<div class="container">
@@ -62,8 +65,8 @@
 						<div class="single-widget">
 							<h2>New to 4-PAY</h2>
 							<form action="#" class="searchform">
-								<input type="text" placeholder="Your email address" />
-								<button type="submit" class="btn btn-default"><i class="fa fa-arrow-circle-o-right"></i></button>
+								<input type="text" id="email" placeholder="Your email address" />
+								<button type="submit" id="subscribe" class="btn btn-default"><i class="fa fa-arrow-circle-o-right"></i></button>
 								<p>Subscribe to our communications to receive special offers and latest news!  </p>
 							</form>
 						</div>
@@ -83,3 +86,17 @@
 		</div>
 		
 	</footer><!--/Footer-->
+	<script>
+ $('#subscribe').on('click', function(e) {
+    e.preventDefault();
+       var email = $('#email').val();
+       $.ajax({
+           type: "POST",
+           url:'{{URL::to('subscribe')}}',
+           data: {email:email,_token: '{!! csrf_token() !!}'},
+           success:function(data){
+           alert(data);
+        }
+       });
+   });
+</script>

@@ -12,6 +12,7 @@ use App\CartOrder;
 use App\Cart;
 use PdfReport;
 use ExcelReport;
+use App\Vendor;
 
 class AdminReportController extends Controller
 {
@@ -106,7 +107,7 @@ public function approvedOrders(Request $request)
     ];
 
     // Generate Report with flexibility to manipulate column class even manipulate column value (using Carbon, etc).
-    return PdfReport::of($title, $meta, $queryBuilder, $columns)
+    return ExcelReport::of($title, $meta, $queryBuilder, $columns)
                     ->editColumns(['totalcost','status'], [ // Mass edit column
                         'class' => 'right bolder  italic-red'
                     ]) ->setOrientation('portrait')
@@ -136,7 +137,7 @@ public function customers(Request $request)
     ];
 
     // Generate Report with flexibility to manipulate column class even manipulate column value (using Carbon, etc).
-    return PdfReport::of($title, $meta, $queryBuilder, $columns)
+    return ExcelReport::of($title, $meta, $queryBuilder, $columns)
                      ->editColumns(['balance','cap'], [ // Mass edit column
                          'class' => 'right bolder  italic-red'
                      ]) ->setOrientation('portrait')
@@ -146,5 +147,32 @@ public function customers(Request $request)
                      ])
                     ->limit(20) // Limit record to be showed
                     ->download('customers');  // other available method: download('filename') to download pdf / make() that will producing DomPDF / SnappyPdf instance so you could do any other DomPDF / snappyPdf method such as stream() or download()
+}
+public function vendors(Request $request)
+{
+    $fromDate =strval($request->from);
+    $toDate =strval($request->to);
+
+    $title = 'List of Vendors'; // Report title
+
+    $meta = [ // For displaying filters description on header
+        'Registered on' => $fromDate . ' To ' . $toDate
+    ];
+
+    $queryBuilder = Vendor::select(['name', 'bussinessname', 'bussinessaliasname','bussinessaddress','phonenumber','email','status']) // Do some querying..
+                        ->whereBetween('created_at', [$fromDate, $toDate]);
+
+    $columns = [ // Set Column to be displayed
+        'name', 'bussinessname', 'bussinessaliasname','bussinessaddress','phonenumber','email','status'
+    ];
+
+    // Generate Report with flexibility to manipulate column class even manipulate column value (using Carbon, etc).
+    return ExcelReport::of($title, $meta, $queryBuilder, $columns)
+                     ->setCss([
+                         '.bolder' => 'font-weight: 800;',
+                         '.italic-red' => 'color: red;font-style: italic;'
+                     ])
+                    ->limit(20) // Limit record to be showed
+                    ->download('vendors');  // other available method: download('filename') to download pdf / make() that will producing DomPDF / SnappyPdf instance so you could do any other DomPDF / snappyPdf method such as stream() or download()
 }
 }

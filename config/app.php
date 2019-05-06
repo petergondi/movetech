@@ -182,6 +182,8 @@ return [
         Rap2hpoutre\LaravelLogViewer\LaravelLogViewerServiceProvider::class,
         Chencha\Share\ShareServiceProvider::class,
         Jorenvh\Share\Providers\ShareServiceProvider::class,
+        Darryldecode\Cart\CartServiceProvider::class,
+        \Safaricom\Mpesa\MpesaServiceProvider::class,
     ],
 
     /*
@@ -234,7 +236,8 @@ return [
         'Fpdf' => Codedge\Fpdf\Facades\Fpdf::class,
         'Share' => Chencha\Share\ShareFacade::class,
         'Share' => Jorenvh\Share\ShareFacade::class,
-
+        'Cart' => Darryldecode\Cart\Facades\CartFacade::class,
+        'Mpesa'=> \Safaricom\Mpesa\MpesaServiceProvider::class,
     ],
 
 ];

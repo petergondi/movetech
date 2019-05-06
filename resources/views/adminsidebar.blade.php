@@ -57,6 +57,7 @@
                             <li><i class="menu-icon ti-email"></i><a href="{{route('sms_settings')}}">SMS </a></li>
                             <li><i class="menu-icon ti-email"></i><a href="{{route('email_settings')}}">Email</a></li>
                             <li><i class="menu-icon ti-email"></i><a href="{{route('capping_settings')}}">Capping</a></li>
+                             <li><i class="fa fa-money"></i><a href="{{route('adminfee')}}">Admin Fee</a></li>
                         </ul>
                     </li>
                     <li class="menu-item-has-children dropdown">

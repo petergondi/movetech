@@ -18,6 +18,7 @@ use App\Capping;
 use DB;
 use Illuminate\Support\Facades\Response;
 use App\SMSSetting;
+use App\AdminCharge;
 use Carbon\Carbon;
 
 class GuestCustomerHomeController extends Controller
@@ -66,7 +67,6 @@ class GuestCustomerHomeController extends Controller
         $color=$request->color;
         $pieces=$request->pieces;
         $id=$request->idd;
-        $item_in_cart_id=Cart::max('id');
         if($pieces==''){
             $noofpieces=1;
         }else{
@@ -88,7 +88,7 @@ class GuestCustomerHomeController extends Controller
         $newitem=array(['id'=>$id,'bussinessname'=>$bussinessname,'size'=>$size,'color'=>$color,'modelnumber'=>$modelnumber,'productname'=>$productname,'pieces'=>$noofpieces,'costperpiece'=>$currentcost,'totalcost'=>$totalcost]);
         
         $all_newitem= json_decode (json_encode ($newitem), FALSE);
-        
+        $admincharge=AdminCharge::where('id',1)->pluck('fee');
         $result=User::where('name',Auth::user()->name)->first();
         if($result){
             $cap=$result->cap;
@@ -102,9 +102,9 @@ class GuestCustomerHomeController extends Controller
                     $allproducts = Cache::get('cartproducts');
                     if($allproducts!=''){
                         
-                        $cachedtotalcost = array_sum(array_column($allproducts, 'totalcost'));
+                        $cachedtotalcost =array_sum(array_column($allproducts, 'totalcost'));
                         
-                        $currenttotalcost=$cachedtotalcost+$totalcost;
+                        $currenttotalcost=$admincharge[0]+$cachedtotalcost+$totalcost;
                         if($currenttotalcost<=$cap){
                             $new_objectitem = array_merge($allproducts,$all_newitem);
                         }else{
@@ -201,10 +201,10 @@ class GuestCustomerHomeController extends Controller
     }
 
     public function vi_ew_cart(Request $request){
-
+        $admincharge=AdminCharge::where('id',1)->pluck('fee');
         $allproducts = Cache::get('cartproducts');
         if($allproducts){
-            $cachedtotalcost = array_sum(array_column($allproducts, 'totalcost'));
+            $cachedtotalcost = $admincharge[0] + array_sum(array_column($allproducts, 'totalcost'));
             $allproducts=$allproducts;
             $count=count($allproducts);
         }else{
@@ -217,15 +217,16 @@ class GuestCustomerHomeController extends Controller
         $vendors=DB::select( DB::raw( "SELECT * FROM vendors ORDER BY priority  + 0 DESC" ) );
         $categories=DB::select( DB::raw("SELECT * FROM categories ORDER BY priority  + 0 DESC limit 5 ") );
         $leftcategories=DB::select( DB::raw("SELECT * FROM categories ORDER BY priority  + 0 DESC") );
+        $adminfee=$admincharge[0];
 
-        return view('viewcart')->with(compact('vendors','categories','leftcategories','allproducts','cachedtotalcost','count'));
+        return view('viewcart')->with(compact('vendors','categories','leftcategories','allproducts','cachedtotalcost','count','adminfee'));
          //return  $allproducts; 
     }
 
     public function proceedto_checkout(Request $request){
         $allproducts = Cache::get('cartproducts');
         if($allproducts){
-            $cachedtotalcost = array_sum(array_column($allproducts, 'totalcost'));
+            $cachedtotalcost = $admincharge+array_sum(array_column($allproducts, 'totalcost'));
             $allproducts=$allproducts;
             $count=count($allproducts);
         }else{
@@ -356,24 +357,16 @@ class GuestCustomerHomeController extends Controller
     }
     public function removeItem(Request $request){
         $id=$request->id;
-        $caches = Cache::get('cartproducts'); //pull retrives the value and removes it
-        foreach($caches as $cache){
-         if($cache->id=22){
-             Cache::forget($cache->id);
-         }
-        }
-        $product = Cache::forget('28');
-        $cache = Cache::get('cartproducts');
-        //$cachedtotalcost = array_sum(array_column($cache, 'totalcost'));
-        //$key = array_search($id, array_column($cache, 'id'));
-        //unset($cache[$key]);
-      // $//allproducts= Cache::put('cartproducts',$cache);
-        //$allproducts = Cache::get('cartproducts');
-        //$cachedtotalcost = array_sum(array_column($allproducts, 'totalcost'))-$item->totalcost;          
-        //$id=$request->id;
-        //$items = Cart::where('id',$id)->pluck('totalcost');
-        //Cart::where('productid', $id)->delete();
-        return response($cache);
-        //return $allproducts;
+        //pull retrives the value and removes it
+        $cache = Cache::pull('cartproducts');
+        $key = array_search($id, array_column($cache, 'id'));
+        unset($cache[$key]);
+        Cache::put('cartproducts',$cache,60);
+       //$test=count(array_column($cache,'id'));
+       //if($test=2){
+       //    Cache::forget('cartproducts');
+       //}
+       //$new = Cache::get('cartproducts');
+        return response(Cache::get('cartproducts'));
     }
 }

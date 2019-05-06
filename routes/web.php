@@ -36,6 +36,10 @@ Route::get('/categories', 'GuestController@cate_gory')->name('category');
 Route::get('/brands', 'GuestController@bra_nds')->name('brands');
 //getloginusercapping
 Route::get('/customer/{id}/account', 'GuestLoginController@loginform')->name('getloginusercapping');
+//subscription
+//Route::get('/manageMailChimp', 'MailChimpController@manageMailChimp');
+Route::POST('/subscribe','Subscription@subscribe')->name('subscribe');
+//Route::post('/sendCompaign',['as'=>'sendCompaign','uses'=>'MailChimpController@sendCompaign']);
 
 Route::get('/customer/account', 'GuestLoginController@showloginform')->name('show_loginform');
 //customer_login
@@ -167,20 +171,23 @@ Route::prefix('admin')->group(function (){
     //admineditcapping
     Route::get('/edit-capping-systems', 'Admin\SMSController@editcappingsettings')->name('admineditcapping');
     Route::get('/delete-capping-systems', 'Admin\SMSController@deletecapping_record')->name('deletecappingrecord');
+     //admin charge
+     Route::get('/adminfee', 'Admin\AdminfeeController@adminCharge')->name('adminfee');
+     Route::post('/save-charge', 'Admin\AdminfeeController@saveCharge')->name('save-charge');
+     Route::get('/edit-charge', 'Admin\AdminfeeController@editCharge')->name('edit-charge');
+     Route::get('/delete-charge', 'Admin\AdminfeeController@deleteCharge')->name('delete-charge');
     //admincustomer
     Route::get('/customers', 'CustomerController@showcustomer')->name('admincustomer');
     //adminallcartorder
     Route::get('/all-order', 'CustomerController@allcartorder')->name('adminallcartorder');
     //adminapprovedorder
     Route::get('/approved-order', 'CustomerController@allapprovedorder')->name('adminapprovedorder');
-    //export to pdf
-    Route::get('/all-order/export', 'Admin\AdminReportController@allOrder')->name('admin.all-order.export');
     //approved orders
     Route::get('/approved-orders/export', 'Admin\AdminReportController@approvedOrders')->name('admin.approved-orders.export');
     //customers
     Route::get('/customers/export', 'Admin\AdminReportController@customers')->name('admin.customers.export');
-    
-
+      //vendors
+      Route::get('/vendors/export', 'Admin\AdminReportController@vendors')->name('admin.vendors.export');
 });
 
 Route::get('/vendorlogin',  'Vendor\VendorLoginController@loginform')->name('vendorlogin');
