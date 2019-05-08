@@ -240,12 +240,85 @@ class GuestCustomerHomeController extends Controller
         $vendors=DB::select( DB::raw( "SELECT * FROM vendors ORDER BY priority  + 0 DESC" ) );
         $categories=DB::select( DB::raw("SELECT * FROM categories ORDER BY priority  + 0 DESC limit 5 ") );
         $leftcategories=DB::select( DB::raw("SELECT * FROM categories ORDER BY priority  + 0 DESC") );
-
+       
         return view('viewproceedtocheckout')->with(compact('vendors','categories','leftcategories','allproducts','cachedtotalcost','count','adminfee'));
         
     }
+    public function payments(Request $request){
+        date_default_timezone_set('Africa/Nairobi');
+        $consumerKey = 'Hg51ApysiYGs70K5MTgKGkStaRnndWuZ'; //Fill with your app Consumer Key
+        $consumerSecret = 'UYDncaQd2fxyFllV'; // Fill with your app Secret
+        # define the variales
+        # provide the following details, this part is found on your test credentials on the developer account
+        $BusinessShortCode = '174379';
+        $Passkey = 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919';   
+        /*
+          This are your info, for
+          $PartyA should be the ACTUAL clients phone number or your phone number, format 2547********
+          $AccountRefference, it maybe invoice number, account number etc on production systems, but for test just put anything
+          TransactionDesc can be anything, probably a better description of or the transaction
+          $Amount this is the total invoiced amount, Any amount here will be 
+          actually deducted from a clients side/your test phone number once the PIN has been entered to authorize the transaction. 
+          for developer/test accounts, this money will be reversed automatically by midnight.
+        */
+        $PartyA = 254725272888; // This is your phone number, 
+        $AccountReference = 'Cart001';
+        $TransactionDesc = 'cART PAYMENT';
+        $Amount = '1';
+        # Get the timestamp, format YYYYmmddhms -> 20181004151020
+        $Timestamp = date('YmdHis');    
+        # Get the base64 encoded string -> $password. The passkey is the M-PESA Public Key
+        $Password = base64_encode($BusinessShortCode.$Passkey.$Timestamp);
+        # header for access token
+        $headers = ['Content-Type:application/json; charset=utf8'];
+          # M-PESA endpoint urls
+        $access_token_url = 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
+        $initiate_url = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest';
+        # callback url
+        $CallBackURL = 'http://465d8d3c.ngrok.io/Mpesa/callback.php';  
+        $curl = curl_init($access_token_url);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+        curl_setopt($curl, CURLOPT_HEADER, FALSE);
+        curl_setopt($curl, CURLOPT_USERPWD, $consumerKey.':'.$consumerSecret);
+        $result = curl_exec($curl);
+        $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+        $result = json_decode($result);
+        $access_token = $result->access_token;  
+        curl_close($curl);
+        # header for stk push
+        $stkheader = ['Content-Type:application/json','Authorization:Bearer '.$access_token];
+        # initiating the transaction
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, $initiate_url);
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $stkheader); //setting custom header
+        $curl_post_data = array(
+          //Fill in the request parameters with valid values
+          'BusinessShortCode' => $BusinessShortCode,
+          'Password' => $Password,
+          'Timestamp' => $Timestamp,
+          'TransactionType' => 'CustomerPayBillOnline',
+          'Amount' => $Amount,
+          'PartyA' => $PartyA,
+          'PartyB' => $BusinessShortCode,
+          'PhoneNumber' => $PartyA,
+          'CallBackURL' => $CallBackURL,
+          'AccountReference' => $AccountReference,
+          'TransactionDesc' => $TransactionDesc
+        );
+        $data_string = json_encode($curl_post_data);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+        curl_setopt($curl, CURLOPT_POST, true);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);
+        $curl_response = curl_exec($curl);
+        print_r($curl_response);
+        return $curl_response;
+        
+    }
+
 
     public function confirmorder(Request $request){
+        $amount=$request->amount;
         $location = $request->location;
         $date=date("m/d/Y");
         $datetime=date("Y-m-d H:i:s", strtotime('+3 hours'));
@@ -295,8 +368,105 @@ class GuestCustomerHomeController extends Controller
             User::where('name',Auth::user()->name)->update(['balance'=>$customercapbalance]);
             Cache::forget('cartproducts');
             $this->directmessage( Auth::user()->phonenumber, Auth::user()->fname,$id);
-            $request->session()->flash('alert-success', 'Order Created Successfully');
-            return redirect()->route('viewcart');
+            date_default_timezone_set('Africa/Nairobi');
+            $consumerKey = 'MR0RPjft5SWoGDXfYUR2ktDt2HsGGpCk'; //Fill with your app Consumer Key
+            $consumerSecret = 'JJSuWzB5Q3mM1Zvw'; // Fill with your app Secret
+            # define the variales
+            # provide the following details, this part is found on your test credentials on the developer account
+            $BusinessShortCode = '174379';
+            $Passkey = 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919';   
+            /*
+              This are your info, for
+              $PartyA should be the ACTUAL clients phone number or your phone number, format 2547********
+              $AccountRefference, it maybe invoice number, account number etc on production systems, but for test just put anything
+              TransactionDesc can be anything, probably a better description of or the transaction
+              $Amount this is the total invoiced amount, Any amount here will be 
+              actually deducted from a clients side/your test phone number once the PIN has been entered to authorize the transaction. 
+              for developer/test accounts, this money will be reversed automatically by midnight.
+            */
+            $PartyA = 254725272888; // This is your phone number, 
+            $AccountReference = 'Cart001';
+            $TransactionDesc = 'cART PAYMENT';
+            $Amount = $amount;
+            # Get the timestamp, format YYYYmmddhms -> 20181004151020
+            $Timestamp = date('YmdHis');    
+            # Get the base64 encoded string -> $password. The passkey is the M-PESA Public Key
+            $Password = base64_encode($BusinessShortCode.$Passkey.$Timestamp);
+            # header for access token
+            $headers = ['Content-Type:application/json; charset=utf8'];
+              # M-PESA endpoint urls
+            $access_token_url = 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
+            $initiate_url = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest';
+            # callback url
+            $CallBackURL = 'http://465d8d3c.ngrok.io/Mpesa/callback.php';  
+            $curl = curl_init($access_token_url);
+            curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
+            curl_setopt($curl, CURLOPT_HEADER, FALSE);
+            curl_setopt($curl, CURLOPT_USERPWD, $consumerKey.':'.$consumerSecret);
+            $result = curl_exec($curl);
+            $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
+            $result = json_decode($result);
+            $access_token = $result->access_token;  
+            curl_close($curl);
+            # header for stk push
+            $stkheader = ['Content-Type:application/json','Authorization:Bearer '.$access_token];
+            # initiating the transaction
+            $curl = curl_init();
+            curl_setopt($curl, CURLOPT_URL, $initiate_url);
+            curl_setopt($curl, CURLOPT_HTTPHEADER, $stkheader); //setting custom header
+            $curl_post_data = array(
+              //Fill in the request parameters with valid values
+              'BusinessShortCode' => $BusinessShortCode,
+              'Password' => $Password,
+              'Timestamp' => $Timestamp,
+              'TransactionType' => 'CustomerPayBillOnline',
+              'Amount' => $Amount,
+              'PartyA' => $PartyA,
+              'PartyB' => $BusinessShortCode,
+              'PhoneNumber' => $PartyA,
+              'CallBackURL' => $CallBackURL,
+              'AccountReference' => $AccountReference,
+              'TransactionDesc' => $TransactionDesc
+            );
+            $data_string = json_encode($curl_post_data);
+            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($curl, CURLOPT_POST, true);
+            curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);
+            $curl_response = curl_exec($curl);
+            //print_r($curl_response);
+            //return $curl_response;
+            //$request->session()->flash('alert-success', 'Order Created Successfully');
+            //return redirect()->route('viewcart');
+            $url = 'https://sandbox.safaricom.co.ke/mpesa/transactionstatus/v1/query';
+$curl = curl_init();
+curl_setopt($curl, CURLOPT_URL, $url);
+curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type:application/json','Authorization:Bearer ACCESS_TOKEN')); //setting custom header
+
+
+$curl_post_data = array(
+  //Fill in the request parameters with valid values
+  'Initiator' => ' ',
+  'SecurityCredential' => ' ',
+  'CommandID' => 'TransactionStatusQuery',
+  'TransactionID' => ' ',
+  'PartyA' => ' ',
+  'IdentifierType' => '1',
+  'ResultURL' => ' http://465d8d3c.ngrok.io/Mpesa/timeout.php',
+  'QueueTimeOutURL' => 'https://ip_address:port/timeout_url',
+  'Remarks' => ' ',
+  'Occasion' => ' '
+);
+
+$data_string = json_encode($curl_post_data);
+
+curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
+curl_setopt($curl, CURLOPT_POST, true);
+curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);
+
+$curl_response = curl_exec($curl);
+print_r($curl_response);
+echo $curl_response;
 
         }else{
             
@@ -370,76 +540,4 @@ class GuestCustomerHomeController extends Controller
        //$new = Cache::get('cartproducts');
         return response(Cache::get('cartproducts'));
     }
-    public function stk_push(Request $request)
-    {
-        //$consumerKey = 'lJA1elbLsmcRYIkHYhtsWeXxhOFgFzRH'; //Fill with your app Consumer Key
-        //$consumerSecret = 'hVxLGab9DN8xqrkG'; // Fill with your app Secret
-        //# define the variales
-        //# provide the following details, this part is found on your test credentials on the developer account
-        //$BusinessShortCode = '174379';
-        //$Passkey = 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919';  
-        ///*
-        //  This are your info, for
-        //  $PartyA should be the ACTUAL clients phone number or your phone number, format 2547********
-        //  $AccountRefference, it maybe invoice number, account number etc on production systems, but for test just put anything
-        //  TransactionDesc can be anything, probably a better description of or the transaction
-        //  $Amount this is the total invoiced amount, Any amount here will be 
-        //  actually deducted from a clients side/your test phone number once the PIN has been entered to authorize the transaction. 
-        //  for developer/test accounts, this money will be reversed automatically by midnight.
-        //*/
-        //$PartyA = 254725272888; // This is your phone number, 
-        //$AccountReference = 'Cart001';
-        //$TransactionDesc = 'cART PAYMENT';
-        //$Amount = '1';
-        //# Get the timestamp, format YYYYmmddhms -> 20181004151020
-        //$Timestamp = date('YmdHis');    
-        //# Get the base64 encoded string -> $password. The passkey is the M-PESA Public Key
-        //$Password = base64_encode($BusinessShortCode.$Passkey.$Timestamp);
-        //# header for access token
-        //$headers = ['Content-Type:application/json; charset=utf8'];
-        //  # M-PESA endpoint urls
-        //$access_token_url = 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
-        //$initiate_url = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest';
-        //# callback url
-        //$CallBackURL = 'http://kidonda.us/projects/MPESA_API/callback_url.php';  
-        //$curl = curl_init($access_token_url);
-        //curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-        //curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
-        //curl_setopt($curl, CURLOPT_HEADER, FALSE);
-        //curl_setopt($curl, CURLOPT_USERPWD, $consumerKey.':'.$consumerSecret);
-        //$result = curl_exec($curl);
-        //$status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-        //$result = json_decode($result);
-        //$access_token = $result->access_token;  
-        //curl_close($curl);
-        //# header for stk push
-        //$stkheader = ['Content-Type:application/json','Authorization:Bearer '.$access_token];
-        //# initiating the transaction
-        //$curl = curl_init();
-        //curl_setopt($curl, CURLOPT_URL, $initiate_url);
-        //curl_setopt($curl, CURLOPT_HTTPHEADER, $stkheader); //setting custom header
-        //$curl_post_data = array(
-        //  //Fill in the request parameters with valid values
-        //  'BusinessShortCode' => $BusinessShortCode,
-        //  'Password' => $Password,
-        //  'Timestamp' => $Timestamp,
-        //  'TransactionType' => 'CustomerPayBillOnline',
-        //  'Amount' => $Amount,
-        //  'PartyA' => $PartyA,
-        //  'PartyB' => $BusinessShortCode,
-        //  'PhoneNumber' => $PartyA,
-        //  'CallBackURL' => $CallBackURL,
-        //  'AccountReference' => $AccountReference,
-        //  'TransactionDesc' => $TransactionDesc
-        //);
-        //$data_string = json_encode($curl_post_data);
-        //curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-        //curl_setopt($curl, CURLOPT_POST, true);
-        //curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);
-        //$curl_response = curl_exec($curl);
-        //print_r($curl_response);
-        //echo $curl_response;
-        return "fine thanks";
-    }
-   
 }

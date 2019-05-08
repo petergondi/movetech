@@ -1,7 +1,7 @@
 <?php
 date_default_timezone_set('Africa/Nairobi');
-$consumerKey = 'EZCz54Psoq5PE6ijrGnvHm08bz696N5E'; //Fill with your app Consumer Key
-$consumerSecret = 'IYbMGilLmFcHURfa'; // Fill with your app Secret
+$consumerKey = 'R310sAOZ0a6fFxrdnR4AWvQmGoTjT0A0'; //Fill with your app Consumer Key
+$consumerSecret = 'ktitT1Tp3ViXGmW0'; // Fill with your app Secret
 # define the variales
 # provide the following details, this part is found on your test credentials on the developer account
 $BusinessShortCode = '174379';
