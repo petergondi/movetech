@@ -246,8 +246,8 @@ class GuestCustomerHomeController extends Controller
     }
     public function payments(Request $request){
         date_default_timezone_set('Africa/Nairobi');
-        $consumerKey = 'Hg51ApysiYGs70K5MTgKGkStaRnndWuZ'; //Fill with your app Consumer Key
-        $consumerSecret = 'UYDncaQd2fxyFllV'; // Fill with your app Secret
+        $consumerKey = 'vOR7mIfcZSwTnwcfqNu9HVFeKNVXFuBs'; //Fill with your app Consumer Key
+        $consumerSecret = 'PVaI2N3qTLS6rb7b'; // Fill with your app Secret
         # define the variales
         # provide the following details, this part is found on your test credentials on the developer account
         $BusinessShortCode = '174379';
@@ -318,7 +318,10 @@ class GuestCustomerHomeController extends Controller
 
 
     public function confirmorder(Request $request){
-        $amount=$request->amount;
+        if($request->amount<$request->min){
+            $request->session()->flash('alert-danger', 'you cannot enter less than.'.$request->amount);
+            return redirect()->back();
+        }
         $location = $request->location;
         $date=date("m/d/Y");
         $datetime=date("Y-m-d H:i:s", strtotime('+3 hours'));
@@ -369,12 +372,12 @@ class GuestCustomerHomeController extends Controller
             Cache::forget('cartproducts');
             $this->directmessage( Auth::user()->phonenumber, Auth::user()->fname,$id);
             date_default_timezone_set('Africa/Nairobi');
-            $consumerKey = 'MR0RPjft5SWoGDXfYUR2ktDt2HsGGpCk'; //Fill with your app Consumer Key
-            $consumerSecret = 'JJSuWzB5Q3mM1Zvw'; // Fill with your app Secret
+            $consumerKey = 'G0KktPhUNPw9tGuPtb8DZ4gGZj355OTa'; //Fill with your app Consumer Key
+            $consumerSecret = 'VXJTELLSFVc8Rods'; // Fill with your app Secret
             # define the variales
             # provide the following details, this part is found on your test credentials on the developer account
             $BusinessShortCode = '174379';
-            $Passkey = 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919';   
+            $Passkey ='bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919';   
             /*
               This are your info, for
               $PartyA should be the ACTUAL clients phone number or your phone number, format 2547********
@@ -387,7 +390,7 @@ class GuestCustomerHomeController extends Controller
             $PartyA = 254725272888; // This is your phone number, 
             $AccountReference = 'Cart001';
             $TransactionDesc = 'cART PAYMENT';
-            $Amount = $amount;
+            $Amount = '1';
             # Get the timestamp, format YYYYmmddhms -> 20181004151020
             $Timestamp = date('YmdHis');    
             # Get the base64 encoded string -> $password. The passkey is the M-PESA Public Key
@@ -398,7 +401,7 @@ class GuestCustomerHomeController extends Controller
             $access_token_url = 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
             $initiate_url = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest';
             # callback url
-            $CallBackURL = 'http://465d8d3c.ngrok.io/Mpesa/callback.php';  
+            $CallBackURL = 'http://2211adde.ngrok.io/Mpesa/callback.php';  
             $curl = curl_init($access_token_url);
             curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
@@ -434,39 +437,10 @@ class GuestCustomerHomeController extends Controller
             curl_setopt($curl, CURLOPT_POST, true);
             curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);
             $curl_response = curl_exec($curl);
-            //print_r($curl_response);
-            //return $curl_response;
+            print_r($curl_response);
+            return $curl_response;
             //$request->session()->flash('alert-success', 'Order Created Successfully');
             //return redirect()->route('viewcart');
-            $url = 'https://sandbox.safaricom.co.ke/mpesa/transactionstatus/v1/query';
-$curl = curl_init();
-curl_setopt($curl, CURLOPT_URL, $url);
-curl_setopt($curl, CURLOPT_HTTPHEADER, array('Content-Type:application/json','Authorization:Bearer ACCESS_TOKEN')); //setting custom header
-
-
-$curl_post_data = array(
-  //Fill in the request parameters with valid values
-  'Initiator' => ' ',
-  'SecurityCredential' => ' ',
-  'CommandID' => 'TransactionStatusQuery',
-  'TransactionID' => ' ',
-  'PartyA' => ' ',
-  'IdentifierType' => '1',
-  'ResultURL' => ' http://465d8d3c.ngrok.io/Mpesa/timeout.php',
-  'QueueTimeOutURL' => 'https://ip_address:port/timeout_url',
-  'Remarks' => ' ',
-  'Occasion' => ' '
-);
-
-$data_string = json_encode($curl_post_data);
-
-curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-curl_setopt($curl, CURLOPT_POST, true);
-curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);
-
-$curl_response = curl_exec($curl);
-print_r($curl_response);
-echo $curl_response;
 
         }else{
             

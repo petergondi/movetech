@@ -21,7 +21,13 @@
                                 <?php
                                  $totalcost=round(0.25*$cachedtotalcost);
                                  $balance=round(($cachedtotalcost-$totalcost)/3);
-                                 $balances=[$balance,$balance,$balance];
+                                 if(!($totalcost==$cachedtotalcost)){
+                                     $additional=$cachedtotalcost-($totalcost*4);
+                                 }
+                                 else {
+                                     $additional=0;
+                                 }
+                                 $balances=[$balance,$balance,($balance+$additional)];
                                  $Date1= date("Y-m-d");
                                  $Date2=date('Y-m-d', strtotime($Date1. ' + 14days'));
                                  $Date3=date('Y-m-d', strtotime($Date1. ' + 28days'));
@@ -60,6 +66,9 @@
                                                             <input type="text"  class="form-control" name='amount' id='amount'  value="{{$totalcost}}" required/>
                                                         </div>
                                                     </div>
+                                                    <div  class="col-sm-6" >
+                                                            <input hidden type="hidden"  class="form-control" name='min' id='min'  value="{{$totalcost}}" required/>
+                                                        </div>
                                                 <table class="table">
                                                 <thead>
                                                         <tr>
