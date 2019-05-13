@@ -1,11 +1,11 @@
 <?php
 date_default_timezone_set('Africa/Nairobi');
-$consumerKey = 'Hg51ApysiYGs70K5MTgKGkStaRnndWuZ'; //Fill with your app Consumer Key
-$consumerSecret = 'UYDncaQd2fxyFllV'; // Fill with your app Secret
-# define the variales
-# provide the following details, this part is found on your test credentials on the developer account
-$BusinessShortCode = '174379';
-$Passkey ='bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919';  
+$consumerKey = 'dn6LgNjjpKfSiS3CgauVjtmqLOEACcy9'; //Fill with your app Consumer Key
+            $consumerSecret = '0zRExzUc5UTl3XEc'; // Fill with your app Secret
+            # define the variales
+            # provide the following details, this part is found on your test credentials on the developer account
+            $BusinessShortCode = '174379';
+            $Passkey ='bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919';   
 /*
   This are your info, for
   $PartyA should be the ACTUAL clients phone number or your phone number, format 2547********
@@ -27,7 +27,6 @@ $Password = base64_encode($BusinessShortCode.$Passkey.$Timestamp);
 $headers = ['Content-Type:application/json; charset=utf8'];
   # M-PESA endpoint urls
 $access_token_url = 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
-$initiate_url = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest';
 $curl = curl_init($access_token_url);
 curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
 curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
@@ -49,7 +48,7 @@ $curl_post_data = array(
   'BusinessShortCode' => $BusinessShortCode,
   'Password' => base64_encode($BusinessShortCode.$Passkey.$Timestamp),
   'Timestamp' => $Timestamp,
-  'CheckoutRequestID' =>'ws_CO_DMZ_335002314_09052019112745032'
+  'CheckoutRequestID' =>'ws_CO_DMZ_475071715_10052019112046456'
 );
 $data_string = json_encode($curl_post_data);
 curl_setopt($curl_init, CURLOPT_RETURNTRANSFER, true);

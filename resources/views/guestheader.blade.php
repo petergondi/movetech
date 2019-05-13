@@ -40,7 +40,7 @@
 					<div class="col-sm-6">
 						<div class="shop-menu pull-right">
 							<ul class="nav navbar-nav">
-								<li><a href="#"><i class="fa fa-user"></i> Account</a></li>
+							<li><a href="{{route('account')}}"><i class="fa fa-user"></i> Account</a></li>
 								<!-- <li><a href="#"><i class="fa fa-star"></i> Wishlist</a></li> -->
 								<li><a href="{{route('proceedtocheckout')}}"><i class="fa fa-crosshairs"></i> Checkout</a></li>
 								<li><a href="{{route('viewcart')}}"><i class="fa fa-shopping-cart"></i> Cart ({{$count}})</a></li>

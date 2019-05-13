@@ -20,7 +20,7 @@ use Illuminate\Support\Facades\Response;
 use App\SMSSetting;
 use App\AdminCharge;
 use Carbon\Carbon;
-
+use App\Transactions;
 class GuestCustomerHomeController extends Controller
 {
     
@@ -246,8 +246,8 @@ class GuestCustomerHomeController extends Controller
     }
     public function payments(Request $request){
         date_default_timezone_set('Africa/Nairobi');
-        $consumerKey = 'vOR7mIfcZSwTnwcfqNu9HVFeKNVXFuBs'; //Fill with your app Consumer Key
-        $consumerSecret = 'PVaI2N3qTLS6rb7b'; // Fill with your app Secret
+        $consumerKey = 'ceT6EiZ3HvNgcKvzBQS95OEMYz1vwiYS'; //Fill with your app Consumer Key
+        $consumerSecret = 'tKrfrAY0BOHti6Sd'; // Fill with your app Secret
         # define the variales
         # provide the following details, this part is found on your test credentials on the developer account
         $BusinessShortCode = '174379';
@@ -342,7 +342,6 @@ class GuestCustomerHomeController extends Controller
             $id= $post->id;
 
             foreach($allproducts as $allproduct){
-        
                 $post = new Cart;
                 $post->cartorder = $id;
                 $post->bussinessname = $allproduct->bussinessname;
@@ -372,12 +371,12 @@ class GuestCustomerHomeController extends Controller
             Cache::forget('cartproducts');
             $this->directmessage( Auth::user()->phonenumber, Auth::user()->fname,$id);
             date_default_timezone_set('Africa/Nairobi');
-            $consumerKey = 'G0KktPhUNPw9tGuPtb8DZ4gGZj355OTa'; //Fill with your app Consumer Key
-            $consumerSecret = 'VXJTELLSFVc8Rods'; // Fill with your app Secret
+            $consumerKey = 'ceT6EiZ3HvNgcKvzBQS95OEMYz1vwiYS'; //Fill with your app Consumer Key
+            $consumerSecret = 'tKrfrAY0BOHti6Sd'; // Fill with your app Secret
             # define the variales
             # provide the following details, this part is found on your test credentials on the developer account
             $BusinessShortCode = '174379';
-            $Passkey ='bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919';   
+            $Passkey = 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919';     
             /*
               This are your info, for
               $PartyA should be the ACTUAL clients phone number or your phone number, format 2547********
@@ -401,7 +400,7 @@ class GuestCustomerHomeController extends Controller
             $access_token_url = 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
             $initiate_url = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest';
             # callback url
-            $CallBackURL = 'http://2211adde.ngrok.io/Mpesa/callback.php';  
+            $CallBackURL = 'http://381df5dc.ngrok.io/Mpesa/callback.php';  
             $curl = curl_init($access_token_url);
             curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
             curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
@@ -441,7 +440,6 @@ class GuestCustomerHomeController extends Controller
             return $curl_response;
             //$request->session()->flash('alert-success', 'Order Created Successfully');
             //return redirect()->route('viewcart');
-
         }else{
             
             $request->session()->flash('alert-success', 'No Item Found in Your Check-ouT.');
@@ -500,18 +498,62 @@ class GuestCustomerHomeController extends Controller
         }
 
     }
-    public function removeItem(Request $request){
-        $id=$request->id;
+    public function removeItem(Request $request,$id){
+        //$id=$request->id;
         //pull retrives the value and removes it
         $cache = Cache::pull('cartproducts');
         $key = array_search($id, array_column($cache, 'id'));
         unset($cache[$key]);
+        //if(count(array_column($cache,$id))==1){
+        //    Cache::forget('cartproducts');
+        //}
         Cache::put('cartproducts',$cache,60);
-       //$test=count(array_column($cache,'id'));
-       //if($test=2){
-       //    Cache::forget('cartproducts');
-       //}
-       //$new = Cache::get('cartproducts');
-        return response(Cache::get('cartproducts'));
-    }
+        $newcache = Cache::get('cartproducts');
+        $data=sizeof($newcache,$id);
+        if($data==1){
+            Cache::forget('cartproducts');
+       }
+        //$request->session()->flash('alert-success',"removed successfully!");
+        //return redirect()->back();
+        //$url=request("Body.stkCallback.CallbackMetadata"); 
+        $url = 'Mpesa/stkPushCallbackResponse.txt'; // path to your JSON file
+     $data = file_get_contents($url); // put the contents of the file into a variable
+     $json = json_decode($data,TRUE);
+     $results=$json['Body']['stkCallback']['CallbackMetadata'];
+     $result_success=$json['Body'];
+     foreach($result_success as $success){
+        $success;
+     }
+ print_r($result_success);
+    foreach($results as $result){
+        $Amount= $result[0]['Value'];
+        $mpesareceiptcode= $result[1]['Value'];
+        $date= date("m-d-Y", strtotime($result[3]['Value'])); 
+        $time= date("h:i:s a", strtotime($result[3]['Value']));
+        $phone= $result[4]['Value'];
+     }
+     $user=Auth::user()->id;
+$check=Transactions::where('ReceiptNumber',$mpesareceiptcode)->first();
+//this statement checks if the transaction does not exist in the db and the mpesacode variable exists
+//meaning the transaction went through
+if(!$check && $mpesareceiptcode){
+    $transaction= new Transactions;
+    $transaction->user_id=$user;
+    $transaction->Amount=$Amount;
+    $transaction->ReceiptNumber=$mpesareceiptcode;
+    $transaction->Phonenumber=$phone;
+    $transaction->Date=$date;
+    $transaction->Time=$time;
+    $transaction->save();
+    file_put_contents("Mpesa/stkPushCallbackResponse.txt", "");
+}
+//this statement checks if the transaction does not return a sucess
+elseif(!($check && $mpesareceiptcode)){
+echo "payment not processed";
+file_put_contents("Mpesa/stkPushCallbackResponse.txt", "");
+}
+  
+    
+ 
+}
 }

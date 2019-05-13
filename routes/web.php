@@ -66,8 +66,9 @@ Route::get('addproduct-tocart', 'GuestCustomerHomeController@addproduct_tocart')
 
 Route::get('viewcart', 'GuestCustomerHomeController@view_cart')->name('cartview');
 Route::get('view-cart', 'GuestCustomerHomeController@vi_ew_cart')->name('viewcart');
-Route::get('remove', 'GuestCustomerHomeController@removeItem')->name('remove');
+Route::get('remove/{id}', 'GuestCustomerHomeController@removeItem')->name('remove');
 Route::get('check-out', 'GuestCustomerHomeController@proceedto_checkout')->name('proceedtocheckout');
+Route::get('account', 'Account@showAccount')->name('account');
 Route::post('check-out', 'GuestCustomerHomeController@confirmorder')->name('confirm_order');
 //test
 Route::get('payments', 'GuestCustomerHomeController@payments')->name('payments');

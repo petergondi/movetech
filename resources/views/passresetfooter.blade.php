@@ -77,7 +77,7 @@
 		<div class="footer-bottom">
 			<div class="container">
 				<div class="row">
-					<p class="pull-right">Copyright © 2018 4 PAY ltd. All rights reserved.</p>
+					<p class="pull-right">Copyright © 2019 4 PAY ltd. All rights reserved.</p>
 					<!-- <p class="pull-right">Designed by <span><a target="_blank" href="https://www.movetechsolutions.com">movetech</a></span></p> -->
 				</div>
 			</div>

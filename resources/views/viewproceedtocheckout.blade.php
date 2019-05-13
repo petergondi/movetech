@@ -20,14 +20,13 @@
                             <div class="checkoutform" >
                                 <?php
                                  $totalcost=round(0.25*$cachedtotalcost);
-                                 $balance=round(($cachedtotalcost-$totalcost)/3);
                                  if(!($totalcost==$cachedtotalcost)){
                                      $additional=$cachedtotalcost-($totalcost*4);
                                  }
                                  else {
                                      $additional=0;
                                  }
-                                 $balances=[$balance,$balance,($balance+$additional)];
+                                 $balances=[$totalcost,$totalcost,($totalcost+$additional)];
                                  $Date1= date("Y-m-d");
                                  $Date2=date('Y-m-d', strtotime($Date1. ' + 14days'));
                                  $Date3=date('Y-m-d', strtotime($Date1. ' + 28days'));

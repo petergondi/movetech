@@ -72,11 +72,10 @@
                                                         <td> {{$allproduct->pieces}} </td>
                                                         <td> <b>Ksh {{number_format($allproduct->costperpiece)}} </b></td>
                                                         <td><b> Ksh {{number_format($allproduct->totalcost)}} </b></td>
-                                                          <td><b>{{number_format($allproduct->id)}} </b></td>
-                                                         <td><button class="btn btn-danger btn-xs remove" data-id="{{$allproduct->id}}" data-title="remove" data-toggle="modal" data-target="#remove" ><span class="glyphicon glyphicon-remove"></span></button></td>
+                                                          <td><b>{{number_format($id=$allproduct->id)}} </b></td>
+                                                    <td><a href="remove/{{$id=$allproduct->id}}" class="btn btn-outline-info"><font color='red'><span class="glyphicon glyphicon-remove"></span></font> </a></td>
                                                     </tr>
                                                 @endforeach
-                                                
                                                 <tr>
                                                         <td> </td>
                                                         <td> </td>
@@ -140,32 +139,32 @@
                     </div>
         </div>
         <script>
-          $(".remove").click(function(){
-        var id = $(this).data("id");
-        var token = $("meta[name='csrf-token']").attr("content");
-        var tr = $(this).closest('tr');
-        var confirmation = confirm("are you sure you want to remove this item from cart?");
-        //if ( confirm("Do you want to Delete?")) {
-    // If you pressed OK!";
-     if (confirmation) {
-
-        $.ajax(
-        {
-            type: 'get',
-           url:'{{URL::to('remove')}}',
-            data: {id:id,_token: '{!! csrf_token() !!}'},
-            success: function (data)
-          {
-               //$('#del').text(data.totalcost);
-               console.log(data);
-                tr.fadeOut(1000, function(){
-                        $(this).remove();
-                    });
-            },
-        });
-         }
-    });
-        </script>
+    //      $(".remove").click(function(){
+    //    var id = $(this).data("id");
+    //    var token = $("meta[name='csrf-token']").attr("content");
+    //    var tr = $(this).closest('tr');
+    //    var confirmation = confirm("are you sure you want to remove this item from cart?");
+    //    //if ( confirm("Do you want to Delete?")) {
+    //// If you pressed OK!";
+    // if (confirmation) {
+//
+    //    $.ajax(
+    //    {
+    //        type: 'get',
+    //       url:'{{URL::to('remove')}}',
+    //        data: {id:id,_token: '{!! csrf_token() !!}'},
+    //        success: function (data)
+    //      {
+    //           //$('#del').text(data.totalcost);
+    //           console.log(data);
+    //            tr.fadeOut(1000, function(){
+    //                    $(this).remove();
+    //                });
+    //        },
+    //    });
+    //     }
+    //});
+    //    </script>
 
         
 @endsection
