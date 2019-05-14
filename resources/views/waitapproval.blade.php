@@ -53,18 +53,19 @@
         </div>
 @endsection
 <script>
-  var interval = null;
-  $(document).on('ready',function(){
-    interval = setInterval(showPayment,3000);
-});
 (function poll(){
    setTimeout(function(){
       $.ajax({ url: "order", 
       success: function(data){
-          poll();
-
-        //Setup the next poll recursively
-        $('#confirm').modal('show');
+        if(data=="sucessfull"){
+     //Setup the next poll recursively
+    //$('#confirm').modal('show');
+    alert("popped");
+        }
+        else{
+          alert("failed");
+        }
+      poll(); 
        
       }, dataType: "json"});
   }, 9000);
