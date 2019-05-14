@@ -322,54 +322,12 @@ class GuestCustomerHomeController extends Controller
             $request->session()->flash('alert-danger', 'you cannot enter less than.'.$request->amount);
             return redirect()->back();
         }
-        $location = $request->location;
-        $date=date("m/d/Y");
-        $datetime=date("Y-m-d H:i:s", strtotime('+3 hours'));
+       
+        //process payment
         $allproducts = Cache::get('cartproducts');
-        if($allproducts){
-            $cachedtotalcost=array_sum(array_column($allproducts, 'totalcost'));
-            $post = new CartOrder;
-            $post->customername = Auth::user()->fname;
-            $post->phonenumber = Auth::user()->phonenumber;
-            $post->email = Auth::user()->email;
-            $post->location = $location;
-            $post->totalcost= $cachedtotalcost;
-            $post->status= 'confirmed';
-            $post->date = $date;
-            $post->datetime= $datetime;
-            $post->save();
-
-            $id= $post->id;
-
-            foreach($allproducts as $allproduct){
-                $post = new Cart;
-                $post->cartorder = $id;
-                $post->bussinessname = $allproduct->bussinessname;
-                $post->productid = $allproduct->id;
-                $post->modelnumber = $allproduct->modelnumber;
-                $post->productname = $allproduct->productname;
-                $post->size= $allproduct->size;
-                $post->color= $allproduct->color;
-                $post->pieces = $allproduct->pieces;
-                $post->costperpiece = $allproduct->costperpiece;
-                $post->totalcost= $allproduct->totalcost;
-                $post->status= 'confirmed';
-                $post->date = $date;
-                $post->datetime= $datetime;
-                $post->save();
-            }
-
-            $cap= Auth::user()->cap;
-            $balance= Auth::user()->balance;
-            if($balance==''){
-                $maxcap=$cap;
-            }else{
-                $maxcap=$balance;
-            }
-            $customercapbalance=$maxcap-$cachedtotalcost;
-            User::where('name',Auth::user()->name)->update(['balance'=>$customercapbalance]);
-            Cache::forget('cartproducts');
-            $this->directmessage( Auth::user()->phonenumber, Auth::user()->fname,$id);
+        if( $allproducts){
+            $location=$request->location;
+            Cache::put('location', $location, 34010);
             date_default_timezone_set('Africa/Nairobi');
             $consumerKey = 'ceT6EiZ3HvNgcKvzBQS95OEMYz1vwiYS'; //Fill with your app Consumer Key
             $consumerSecret = 'tKrfrAY0BOHti6Sd'; // Fill with your app Secret
@@ -436,15 +394,17 @@ class GuestCustomerHomeController extends Controller
             curl_setopt($curl, CURLOPT_POST, true);
             curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);
             $curl_response = curl_exec($curl);
-            print_r($curl_response);
-            return $curl_response;
-            //$request->session()->flash('alert-success', 'Order Created Successfully');
-            //return redirect()->route('viewcart');
-        }else{
-            
-            $request->session()->flash('alert-success', 'No Item Found in Your Check-ouT.');
-            return redirect()->back();
+            //print_r($curl_response);
+            //return $curl_response;
+            $request->session()->flash('alert-success', 'Please Wait for your Payment Approval');
+            return redirect()->route('waitapproval');
+        
         }
+        else{
+            $request->session()->flash('alert-danger', 'No item in the cart');
+            return redirect()->route('viewcart');
+        }
+            
 
     }
 
@@ -498,62 +458,118 @@ class GuestCustomerHomeController extends Controller
         }
 
     }
-    public function removeItem(Request $request,$id){
-        //$id=$request->id;
-        //pull retrives the value and removes it
-        $cache = Cache::pull('cartproducts');
-        $key = array_search($id, array_column($cache, 'id'));
-        unset($cache[$key]);
-        //if(count(array_column($cache,$id))==1){
-        //    Cache::forget('cartproducts');
-        //}
-        Cache::put('cartproducts',$cache,60);
-        $newcache = Cache::get('cartproducts');
-        $data=sizeof($newcache,$id);
-        if($data==1){
-            Cache::forget('cartproducts');
-       }
-        //$request->session()->flash('alert-success',"removed successfully!");
-        //return redirect()->back();
-        //$url=request("Body.stkCallback.CallbackMetadata"); 
-        $url = 'Mpesa/stkPushCallbackResponse.txt'; // path to your JSON file
-     $data = file_get_contents($url); // put the contents of the file into a variable
-     $json = json_decode($data,TRUE);
-     $results=$json['Body']['stkCallback']['CallbackMetadata'];
-     $result_success=$json['Body'];
-     foreach($result_success as $success){
-        $success;
-     }
- print_r($result_success);
-    foreach($results as $result){
-        $Amount= $result[0]['Value'];
-        $mpesareceiptcode= $result[1]['Value'];
-        $date= date("m-d-Y", strtotime($result[3]['Value'])); 
-        $time= date("h:i:s a", strtotime($result[3]['Value']));
-        $phone= $result[4]['Value'];
-     }
-     $user=Auth::user()->id;
-$check=Transactions::where('ReceiptNumber',$mpesareceiptcode)->first();
-//this statement checks if the transaction does not exist in the db and the mpesacode variable exists
-//meaning the transaction went through
-if(!$check && $mpesareceiptcode){
-    $transaction= new Transactions;
-    $transaction->user_id=$user;
-    $transaction->Amount=$Amount;
-    $transaction->ReceiptNumber=$mpesareceiptcode;
-    $transaction->Phonenumber=$phone;
-    $transaction->Date=$date;
-    $transaction->Time=$time;
-    $transaction->save();
-    file_put_contents("Mpesa/stkPushCallbackResponse.txt", "");
-}
-//this statement checks if the transaction does not return a sucess
-elseif(!($check && $mpesareceiptcode)){
-echo "payment not processed";
-file_put_contents("Mpesa/stkPushCallbackResponse.txt", "");
-}
-  
     
- 
+    public function showapprovalForm(){
+        return view('waitapproval');
+
+    }
+public function order()
+{
+    $url = 'Mpesa/stkPushCallbackResponse.txt'; // path to your JSON file
+    $data = file_get_contents($url); // put the contents of the file into a variable
+    $json = json_decode($data,TRUE);
+    $results=$json['Body']['stkCallback']['CallbackMetadata'];
+        foreach($results as $result){
+            $Amount= $result[0]['Value'];
+            $mpesareceiptcode= $result[1]['Value'];
+            $date= date("m-d-Y", strtotime($result[3]['Value'])); 
+            $time= date("h:i:s a", strtotime($result[3]['Value']));
+            $phone= $result[4]['Value'];
+         }
+         $user=Auth::user()->id;
+     $check=Transactions::where('ReceiptNumber',$mpesareceiptcode)->first();
+     //this statement checks if the transaction does not exist in the db and the mpesacode variable exists
+     //meaning the transaction went through
+     if(!$check && $mpesareceiptcode){
+        $transaction= new Transactions;
+        $transaction->user_id=$user;
+        $transaction->Amount=$Amount;
+        $transaction->ReceiptNumber=$mpesareceiptcode;
+        $transaction->Phonenumber=$phone;
+        $transaction->Date=$date;
+        $transaction->Time=$time;
+        $transaction->save();
+        file_put_contents("Mpesa/stkPushCallbackResponse.txt", "");
+        $location = $request->location;
+        $date=date("m/d/Y");
+        $datetime=date("Y-m-d H:i:s", strtotime('+3 hours'));
+        $allproducts = Cache::get('cartproducts');
+        $location=Cache::get('location');
+        if($allproducts){
+            $cachedtotalcost=array_sum(array_column($allproducts, 'totalcost'));
+            $post = new CartOrder;
+            $post->customername = Auth::user()->fname;
+            $post->phonenumber = Auth::user()->phonenumber;
+            $post->email = Auth::user()->email;
+            $post->location = $location;
+            $post->totalcost= $cachedtotalcost;
+            $post->status= 'confirmed';
+            $post->date = $date;
+            $post->datetime= $datetime;
+            $post->save();
+     
+            $id= $post->id;
+     
+            foreach($allproducts as $allproduct){
+                $post = new Cart;
+                $post->cartorder = $id;
+                $post->bussinessname = $allproduct->bussinessname;
+                $post->productid = $allproduct->id;
+                $post->modelnumber = $allproduct->modelnumber;
+                $post->productname = $allproduct->productname;
+                $post->size= $allproduct->size;
+                $post->color= $allproduct->color;
+                $post->pieces = $allproduct->pieces;
+                $post->costperpiece = $allproduct->costperpiece;
+                $post->totalcost= $allproduct->totalcost;
+                $post->status= 'confirmed';
+                $post->date = $date;
+                $post->datetime= $datetime;
+                $post->save();
+            }
+     
+            $cap= Auth::user()->cap;
+            $balance= Auth::user()->balance;
+            if($balance==''){
+                $maxcap=$cap;
+            }else{
+                $maxcap=$balance;
+            }
+            $customercapbalance=$maxcap-$cachedtotalcost;
+            User::where('name',Auth::user()->name)->update(['balance'=>$customercapbalance]);
+            Cache::forget('cartproducts');
+            Cache::forget('location');
+            $this->directmessage( Auth::user()->phonenumber, Auth::user()->fname,$id);
+            return response("sucessfull");
+          }
+          else{
+             $request->session()->flash('alert-success', 'No Item Found in Your Check-ouT.');
+         }
+     }
+     //this statement checks if the transaction does not return a sucess
+     elseif(!($check && $mpesareceiptcode)){
+     return response("failed");
+     file_put_contents("Mpesa/stkPushCallbackResponse.txt", "");
+     }
+}
+public function removeItem(Request $request,$id){
+    //$id=$request->id;
+    //pull retrives the value and removes it
+    $cache = Cache::pull('cartproducts');
+    $key = array_search($id, array_column($cache, 'id'));
+    unset($cache[$key]);
+    //if(count(array_column($cache,$id))==1){
+    //    Cache::forget('cartproducts');
+    //}
+    Cache::put('cartproducts',$cache,60);
+    $newcache = Cache::get('cartproducts');
+    $data=sizeof($newcache,$id);
+    if($data==1){
+        Cache::forget('cartproducts');
+   }
+    //$request->session()->flash('alert-success',"removed successfully!");
+    //return redirect()->back();
+    //$url=request("Body.stkCallback.CallbackMetadata"); 
+   
 }
 }

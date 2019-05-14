@@ -70,6 +70,8 @@ Route::get('remove/{id}', 'GuestCustomerHomeController@removeItem')->name('remov
 Route::get('check-out', 'GuestCustomerHomeController@proceedto_checkout')->name('proceedtocheckout');
 Route::get('account', 'Account@showAccount')->name('account');
 Route::post('check-out', 'GuestCustomerHomeController@confirmorder')->name('confirm_order');
+Route::get('order', 'GuestCustomerHomeController@order')->name('order');
+Route::get('waitapproval', 'GuestCustomerHomeController@showapprovalForm')->name('waitapproval');
 //test
 Route::get('payments', 'GuestCustomerHomeController@payments')->name('payments');
 
