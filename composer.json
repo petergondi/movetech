@@ -21,6 +21,7 @@
         "phpmailer/phpmailer": "^5.2",
         "rap2hpoutre/laravel-log-viewer": "^0.22.1",
         "safaricom/mpesa": "^1.0",
+        "smodav/mpesa": "^4.0",
         "spatie/laravel-newsletter": "^4.4"
     },
     "require-dev": {

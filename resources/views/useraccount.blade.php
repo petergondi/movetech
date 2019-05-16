@@ -9,6 +9,8 @@
     padding-right: 60px;
 }
 </style>
+<link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.14.2/dist/bootstrap-table.min.css">
+<script src="https://unpkg.com/bootstrap-table@1.14.2/dist/bootstrap-table.min.js"></script>
 @section('content')  
  
         <div class='row' >
@@ -28,28 +30,43 @@
                                 </center>
                                 <br><br>
                                 <h4 class="fa fa-user">Name:<font color="green"> {{$user}}</font></h4><br/>
-                                <h4 class="fa fa-money bg-primary">Amount Paid:<font color="green"> ksh.400</font></h4><br/>
-                                <h4 class="fa fa-money bg-primary">Remaining Amount:<font color="red"> ksh.800</font></h4>
-                              <h5 >
+                              <h4 class="fa fa-money bg-primary">Amount Paid:<font color="green"> ksh.{{$amount}}</font></h4><br/>
+                              <h4 class="fa fa-money bg-primary">Total Due Amount:<font color="red"> ksh.{{$total}}</font></h4><br/>
+                              <h4 class="fa fa-money bg-primary">Remaining Due Amount:<font color="red"> ksh.{{$total_not_paid}}</font></h4>
+                              <h3>
                               <font color="green"> Remaining amount should be Paid after every two weeks. using paybill <b>483473</b>
-                              </font></h5>
+                              </font></h4>
                                 <br><br>  
-                                                <table class="table">
+                                                <table class="table table-dark table-hover">
                                                 <thead>
                                                         <tr>
-                                                          <th scope="col">Schedule</th>
-                                                          <th scope="col">Date</th>
-                                                          <th scope="col">Amount</th>
+                                                          <th  scope="col">Schedule</th>
+                                                          <th  scope="col">Date</th>
+                                                          <th  scope="col">Amount</th>
                                                         </tr>
                                                       </thead>
                                                       <tbody>
+                                                        @foreach($next_payments as $payment)
                                                         <tr>
-                                                          <th scope="row">Next payment</th>
-                                                          <td>122</td>
-                                                        <td>433</td>
+                                                        <td>{{$payment->schedule}} Payment</td>
+                                                        <td>{{$payment->date}}</td>
+                                                        <td>Ksh.{{$payment->amount}}</td>
                                                         </tr>
+                                                        @endforeach
                                                       </tbody>
                                                     </table>
+                            
+                              <?php
+                              $products=App\Cart::where('cartorder',$payment->CartNo)->get();
+                              ?>
+                                <a  class="list-group-item list-group-item-action active">
+                                {{count($products)}} Products 
+                                  </a>
+                              <ul class="list-group">
+                                @foreach ($products as $product)
+                                <li class="list-group-item disabled">{{$product->productname}}</li>
+                                @endforeach
+                                </ul>
                                                 <div class="row" >
                                                     <div  class="col-sm-4" >
                                                         

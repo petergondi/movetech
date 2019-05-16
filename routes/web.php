@@ -72,6 +72,7 @@ Route::get('account', 'Account@showAccount')->name('account');
 Route::post('check-out', 'GuestCustomerHomeController@confirmorder')->name('confirm_order');
 Route::get('order', 'GuestCustomerHomeController@order')->name('order');
 Route::get('waitapproval', 'GuestCustomerHomeController@showapprovalForm')->name('waitapproval');
+Route::get('callback', 'GuestCustomerHomeController@callback');
 
 //share
 Route::get('/share','GuestCustomerHomeController@share');

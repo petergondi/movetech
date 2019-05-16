@@ -1,7 +1,5 @@
 <?php
-
 namespace App\Http\Controllers;
-
 use App\Credit;
 use App\User;
 use App\Checking;
@@ -21,6 +19,7 @@ use App\SMSSetting;
 use App\AdminCharge;
 use Carbon\Carbon;
 use App\Transactions;
+use App\Reminders;
 class GuestCustomerHomeController extends Controller
 {
     
@@ -123,10 +122,13 @@ class GuestCustomerHomeController extends Controller
                         }
                         
                     }
-
+                   //check if the user has pending payments
+                   $userid=Auth::user()->id;
+                   $check_existing_debt=Reminders::where('user_id',$userid)->where('status','pending')->first();
+                   if($check_existing_debt){
+                    return Response::json(['error' => 'You have existing unpaid items']);
+                   }
                     Cache::put('cartproducts', $new_objectitem, 34010);
-
-
                     return Response::json(['error' => 'Success']);
         }else{
             return Response::json(['error' => 'Acc. Not Found.']);
@@ -147,27 +149,9 @@ class GuestCustomerHomeController extends Controller
             $modelnumber=$collection->modelnumber;
             $productname=$collection->productname;
             $totalcost=300;
-            // $newarray=array(
-            //     [
-            //         'id' => 2135,
-            //         'first_name' => 'John',
-            //         'last_name' => 'Doe',
-            //     ],
-            //    [
-            //         'id' => 3245,
-            //         'first_name' => 'Sally',
-            //         'last_name' => 'Smith',
-            //    ]
-            // );
-          //  $newarray=array('id'=>$id,'modelnumber'=>$modelnumber);
             $newarray=array(['id'=>$id,'modelnumber'=>$modelnumber,'productname'=>$productname,'totalcost'=>$totalcost]);
 
             $all_categories= json_decode (json_encode ($newarray), FALSE); //array to object
-
-        //     $all_categories = [];
-        //  $all_categories[] = $newarray;
-        //  $all_categories = json_encode($all_categories);
-       //  return $all_categories;
          Cache::put('products', $all_categories, 34010);
          $allproducts = Cache::get('products');
      //return  $allproducts = Cache::get('products');
@@ -179,15 +163,7 @@ class GuestCustomerHomeController extends Controller
      $totalcost=500;
      $newarrayn=array(['id'=>$id,'modelnumber'=>$modelnumber,'productname'=>$productname,'totalcost'=>$totalcost]);
      $otherall_categories= json_decode (json_encode ($newarrayn), FALSE);
-    //  $otherall_categories = [];
-    //  $otherall_categories[] = $newarrayn;
-    //  $otherall_categories = json_encode($otherall_categories);
-    //  Cache::put('newproducts', $otherall_categories, 34010);
-      //  $new_objectproduct = $allproducts->merge($otherall_categories);
-      // Cache::put('products', $new_objectproduct, 34010);
-        //Cache::put('products', $new_objectproduct, 34010);
-        //  $newproducts = Cache::get('newproducts');
-        // $oldproducts = Cache::get('oldproducts');
+   
         $new_objectproduct = array_merge($allproducts,$otherall_categories);
         Cache::put('products', $new_objectproduct, 34010);
          $allproducts = Cache::get('products');
@@ -247,83 +223,34 @@ class GuestCustomerHomeController extends Controller
 
     public function confirmorder(Request $request){
         if($request->amount<$request->min){
-            $request->session()->flash('alert-danger', 'you cannot enter less than.'.$request->amount);
+            $request->session()->flash('alert-danger', 'you cannot enter less than.'.$request->min);
             return redirect()->back();
         }
-       
         //process payment
         $allproducts = Cache::get('cartproducts');
         if( $allproducts){
             $location=$request->location;
             Cache::put('location', $location, 34010);
             date_default_timezone_set('Africa/Nairobi');
-            $consumerKey = 'I0VhJiwXSUyei9t9YK4jCmWulcuh8bjq'; //Fill with your app Consumer Key
-            $consumerSecret = 'pS93WLrnXTvwtlMs'; // Fill with your app Secret
-            # define the variales
-            # provide the following details, this part is found on your test credentials on the developer account
-            $BusinessShortCode = '174379';
-            $Passkey = 'bfb279f9aa9bdbcf158e97dd71a467cd2e0c893059b10f78e6b72ada1ed2c919';     
-            /*
-              This are your info, for
-              $PartyA should be the ACTUAL clients phone number or your phone number, format 2547********
-              $AccountRefference, it maybe invoice number, account number etc on production systems, but for test just put anything
-              TransactionDesc can be anything, probably a better description of or the transaction
-              $Amount this is the total invoiced amount, Any amount here will be 
-              actually deducted from a clients side/your test phone number once the PIN has been entered to authorize the transaction. 
-              for developer/test accounts, this money will be reversed automatically by midnight.
-            */
+            $BusinessShortCode ='400153';
+            $PartyB=$BusinessShortCode;
+            $LipaNaMpesaPasskey = '53c4b78a6a03180c4bc923650161b2eea4ceefdd550e91d5341463cc83abbe63';     
+            $CallBackURL="https://c86b124b.ngrok.io/Mpesa/callback.php";
             $PartyA = 254725272888; // This is your phone number, 
+            $PhoneNumber = 254725272888;
             $AccountReference = 'Cart001';
-            $TransactionDesc = 'cART PAYMENT';
+            $TransactionDesc = 'CART PAYMENT';
             $Amount = '1';
-            # Get the timestamp, format YYYYmmddhms -> 20181004151020
             $Timestamp = date('YmdHis');    
-            # Get the base64 encoded string -> $password. The passkey is the M-PESA Public Key
-            $Password = base64_encode($BusinessShortCode.$Passkey.$Timestamp);
+            $Remarks="good";
+            $TransactionType="CustomerPayBillOnline";
             # header for access token
-            $headers = ['Content-Type:application/json; charset=utf8'];
-              # M-PESA endpoint urls
-            $access_token_url = 'https://sandbox.safaricom.co.ke/oauth/v1/generate?grant_type=client_credentials';
-            $initiate_url = 'https://sandbox.safaricom.co.ke/mpesa/stkpush/v1/processrequest';
-            # callback url
-            $CallBackURL = 'https://fff803e3.ngrok.io/Mpesa/callback.php';  
-            $curl = curl_init($access_token_url);
-            curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, TRUE);
-            curl_setopt($curl, CURLOPT_HEADER, FALSE);
-            curl_setopt($curl, CURLOPT_USERPWD, $consumerKey.':'.$consumerSecret);
-            $result = curl_exec($curl);
-            $status = curl_getinfo($curl, CURLINFO_HTTP_CODE);
-            $result = json_decode($result);
-            $access_token = $result->access_token;  
-            curl_close($curl);
-            # header for stk push
-            $stkheader = ['Content-Type:application/json','Authorization:Bearer '.$access_token];
-            # initiating the transaction
-            $curl = curl_init();
-            curl_setopt($curl, CURLOPT_URL, $initiate_url);
-            curl_setopt($curl, CURLOPT_HTTPHEADER, $stkheader); //setting custom header
-            $curl_post_data = array(
-              //Fill in the request parameters with valid values
-              'BusinessShortCode' => $BusinessShortCode,
-              'Password' => $Password,
-              'Timestamp' => $Timestamp,
-              'TransactionType' => 'CustomerPayBillOnline',
-              'Amount' => $Amount,
-              'PartyA' => $PartyA,
-              'PartyB' => $BusinessShortCode,
-              'PhoneNumber' => $PartyA,
-              'CallBackURL' => $CallBackURL,
-              'AccountReference' => $AccountReference,
-              'TransactionDesc' => $TransactionDesc
-            );
-            $data_string = json_encode($curl_post_data);
-            curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
-            curl_setopt($curl, CURLOPT_POST, true);
-            curl_setopt($curl, CURLOPT_POSTFIELDS, $data_string);
-            $curl_response = curl_exec($curl);
-            //print_r($curl_response);
-            //return $curl_response;
+            $mpesa= new \Safaricom\Mpesa\Mpesa();
+
+       $stkPushSimulation=$mpesa->STKPushSimulation($BusinessShortCode, $LipaNaMpesaPasskey, $TransactionType, 
+       $Amount, $PartyA, $PartyB, $PhoneNumber, $CallBackURL, $AccountReference, $TransactionDesc, $Remarks);
+            //print_r($stkPushSimulation);
+            //return $stkPushSimulation;
            
             $request->session()->flash('alert-success', 'Please Wait for your Payment Approval');
             return redirect()->route('waitapproval');
@@ -391,102 +318,154 @@ class GuestCustomerHomeController extends Controller
         return view('waitapproval');
 
     }
-public function order()
-{
-    $url = 'Mpesa/stkPushCallbackResponse.txt'; // path to your JSON file
-    if(!($url==""))
-    {
-        $data = file_get_contents($url); // put the contents of the file into a variable
-        $json = json_decode($data,TRUE);
-        $check_status=$json['Body']['stkCallback']['ResultCode'];
-        if($check_status==0){
-            $results=$json['Body']['stkCallback']['CallbackMetadata'];
-            foreach($results as $result){
-                $Amount= $result[0]['Value'];
-                $mpesareceiptcode= $result[1]['Value'];
-                $date= date("m-d-Y", strtotime($result[3]['Value'])); 
-                $time= date("h:i:s a", strtotime($result[3]['Value']));
-                $phone= $result[4]['Value'];
-             }
-             $user=Auth::user()->id;
+
+public function order(){
+    $url = 'Mpesa/stkPushCallbackResponse.txt';
+    $data = file_get_contents($url); // put the contents of the file into a variable
+    $json = json_decode($data,TRUE); 
+    //getting result code
+    $check_status=$json['Body']['stkCallback']['ResultCode'];
+ if($check_status==0 && !$json==""){
+         $Amount= $json['Body']['stkCallback']['CallbackMetadata']['Item'][0]['Value'];
+         $mpesareceiptcode= $json['Body']['stkCallback']['CallbackMetadata']['Item'][1]['Value'];
+         $date= date("m-d-Y", strtotime($json['Body']['stkCallback']['CallbackMetadata']['Item'][3]['Value'])); 
+         $time= date("h:i:s a", strtotime($json['Body']['stkCallback']['CallbackMetadata']['Item'][3]['Value']));
+         $phone= $json['Body']['stkCallback']['CallbackMetadata']['Item'][4]['Value'];
+         
+         $user=Auth::user()->id;
+    //check if there is a similar transaction in the db
          $check=Transactions::where('ReceiptNumber',$mpesareceiptcode)->first();
-         //this statement checks if the transaction does not exist in the db 
          if(!$check){
-            $transaction= new Transactions;
-            $transaction->user_id=$user;
-            $transaction->Amount=$Amount;
-            $transaction->ReceiptNumber=$mpesareceiptcode;
-            $transaction->Phonenumber=$phone;
-            $transaction->Date=$date;
-            $transaction->Time=$time;
-            $transaction->save();
-            $location = $request->location;
-            $date=date("m/d/Y");
-            $datetime=date("Y-m-d H:i:s", strtotime('+3 hours'));
-            $allproducts = Cache::get('cartproducts');
-            $location=Cache::get('location');
-           //posting items in cart to confiemd orders table
-                $cachedtotalcost=array_sum(array_column($allproducts, 'totalcost'));
-                $post = new CartOrder;
-                $post->customername = Auth::user()->fname;
-                $post->phonenumber = Auth::user()->phonenumber;
-                $post->email = Auth::user()->email;
-                $post->location = $location;
-                $post->totalcost= $cachedtotalcost;
-                $post->status= 'confirmed';
-                $post->date = $date;
-                $post->datetime= $datetime;
-                $post->save();
+        $allproducts = Cache::get('cartproducts');
+       if($allproducts){
+        $transaction= new Transactions;
+        $transaction->user_id=$user;
+        $transaction->Amount=$Amount;
+        $transaction->ReceiptNumber=$mpesareceiptcode;
+        $transaction->Phonenumber=$phone;
+        $transaction->Date=$date;
+        $transaction->Time=$time;
+        $transaction->save();
+        file_put_contents($url, "");
+
+        ////save orders to db
+             $date_today=date("m/d/Y");
+             $datetime=date("Y-m-d H:i:s", strtotime('+3 hours'));
+             $location=Cache::get('location');
+            //posting items in cart to confiemd orders table
+             $cachedtotalcost=array_sum(array_column($allproducts, 'totalcost'));
+             $post = new CartOrder;
+             $post->customer_id = $user;
+             $post->phonenumber = Auth::user()->phonenumber;
+             $post->email = Auth::user()->email;
+             $post->location = $location;
+             $post->totalcost= $cachedtotalcost;
+             $post->status= 'confirmed';
+             $post->date = $date_today;
+             $post->datetime= $datetime;
+             $post->save();
+          
+             $now = Carbon::now();
+             $now_format=$now->format('d/m/Y');
+             //generating cart numbers
+             $cartno="CartNo".$now_format.rand(1000,9999);
+        //   //save to cart
+           foreach($allproducts as $allproduct){
+               $post = new Cart;
+               $post->cartorder = $cartno;
+               $post->user_id= $user;
+               $post->bussinessname = $allproduct->bussinessname;
+               $post->productid = $allproduct->id;
+               $post->modelnumber = $allproduct->modelnumber;
+               $post->productname = $allproduct->productname;
+               $post->size= $allproduct->size;
+               $post->color= $allproduct->color;
+               $post->pieces = $allproduct->pieces;
+               $post->costperpiece = $allproduct->costperpiece;
+               $post->totalcost= $allproduct->totalcost;
+               $post->status= 'confirmed';
+               $post->date = $date;
+               $post->datetime= $datetime;
+               $post->save();
+                   }
+                   //
+                   $cap= Auth::user()->cap;
+                   $balance= Auth::user()->balance;
+                   if($balance==''){
+                       $maxcap=$cap;
+                   }else{
+                       $maxcap=$balance;
+                   }
+                   $customercapbalance=$maxcap-$cachedtotalcost;
+                   User::where('name',Auth::user()->name)->update(['balance'=>$customercapbalance]);
+                   $totalcost=round(0.25*$cachedtotalcost);
+                   if(!($totalcost==$cachedtotalcost)){
+                       $additional=$cachedtotalcost-($totalcost*4);
+                   }
+                   else {
+                       $additional=0;
+                   }
+                   $balances=[$totalcost,$totalcost,($totalcost+$additional)];
+                   $Date1= date("Y-m-d");
+                   $Date2=date('Y-m-d', strtotime($Date1. ' + 14days'));
+                   $Date3=date('Y-m-d', strtotime($Date1. ' + 28days'));
+                   $Date4=date('Y-m-d', strtotime($Date1. ' + 42days'));
+                   $dates=[$Date2,$Date3,$Date4];
+                   $schedules=['Second','Third','Final'];
+                  
+                   //inserting paid cart to remindrs table
+                   foreach($balances as $key=>$balance){
+                    //$data[] =[
+                    //    'date' =>  $dates[$key],
+                    //    'amount'=>$balance,
+                    //    'CartNo'=>$cartno,
+                    //    'user_id'=>$user,
+                    //    'status'=>"pending",
+                    //    'created_at'=>$now,
+                    //    'updated_at'=>$now,
+                    //   ];  
+                    $reminder=new Reminders;
+                    $reminder->CartNo=$cartno;
+                    $reminder->user_id=$user;
+                    $reminder->date=$dates[$key];
+                    $reminder->schedule=$schedules[$key];
+                    $reminder->amount=$balance;
+                    $reminder->status="pending";
+                    $reminder->save();
+                   }
+                   //Reminders::insert($data);
+                   Cache::forget('cartproducts');
+                   Cache::forget('location');
+                   $this->directmessage( Auth::user()->phonenumber, Auth::user()->fname,$user);
+                   return response()->json(['state' => 'success']);
+          }
+          else{
+            response()->json(['state' => 'timeout']);
+            //$request->session()->flash('alert-danger', 'An error has occured in your payment');
+            //return redirect()->route('viewcart');
+          }
          
-                $id= $post->id;
-         
-                foreach($allproducts as $allproduct){
-                    $post = new Cart;
-                    $post->cartorder = $id;
-                    $post->bussinessname = $allproduct->bussinessname;
-                    $post->productid = $allproduct->id;
-                    $post->modelnumber = $allproduct->modelnumber;
-                    $post->productname = $allproduct->productname;
-                    $post->size= $allproduct->size;
-                    $post->color= $allproduct->color;
-                    $post->pieces = $allproduct->pieces;
-                    $post->costperpiece = $allproduct->costperpiece;
-                    $post->totalcost= $allproduct->totalcost;
-                    $post->status= 'confirmed';
-                    $post->date = $date;
-                    $post->datetime= $datetime;
-                    $post->save();
-                }
-         
-                $cap= Auth::user()->cap;
-                $balance= Auth::user()->balance;
-                if($balance==''){
-                    $maxcap=$cap;
-                }else{
-                    $maxcap=$balance;
-                }
-                $customercapbalance=$maxcap-$cachedtotalcost;
-                User::where('name',Auth::user()->name)->update(['balance'=>$customercapbalance]);
-                Cache::forget('cartproducts');
-                Cache::forget('location');
-                file_put_contents("Mpesa/stkPushCallbackResponse.txt", "");
-                $this->directmessage( Auth::user()->phonenumber, Auth::user()->fname,$id);
-                return response("sucessfull");
-        }
-         }
+             
     }
     
-     //this statement checks if the transaction does not return a sucess dode
-     else{
-     file_put_contents("Mpesa/stkPushCallbackResponse.txt", "");
-     Cache::forget('cartproducts');
-    Cache::forget('location');
-     return response("failed");
-     }
+    
+}
+    if(!$check_status)
+   {
+        response()->json(['state' => 'timeout']);
+   }
+}
+public function callback(){
+    $url = 'Mpesa/stkPushCallbackResponse.txt';
+    $data = file_get_contents($url); // put the contents of the file into a variable
+    $json = json_decode($data,TRUE); 
+    //getting result code
+    $check_status=$json['Body']['stkCallback']['ResultCode'];
+    
 }
 public function removeItem(Request $request,$id){
     //$id=$request->id;
-    //pull retrives the value and removes it
+    //pull retrives the value and removes it from the cart
     $cache = Cache::pull('cartproducts');
     $key = array_search($id, array_column($cache, 'id'));
     unset($cache[$key]);

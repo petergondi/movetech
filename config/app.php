@@ -184,6 +184,9 @@ return [
         Jorenvh\Share\Providers\ShareServiceProvider::class,
         Darryldecode\Cart\CartServiceProvider::class,
         \Safaricom\Mpesa\MpesaServiceProvider::class,
+       
+            
+      
     ],
 
     /*

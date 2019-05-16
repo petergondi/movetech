@@ -19,17 +19,24 @@
     <div class="modal-dialog modal-dialog-centered" role="document">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="exampleModalLongTitle">Modal title</h5>
+          <h5 class="modal-title" id="exampleModalLongTitle">Payment Information</h5>
           <button type="button" class="close" data-dismiss="modal" aria-label="Close">
             <span aria-hidden="true">&times;</span>
           </button>
         </div>
         <div class="modal-body">
-          ...
+         <center>
+            <div class="panel panel-default alert alert-info">
+                <div class="panel-body"> 
+                  Your Payment Has been Processed Please 
+                check your <a href="{{route('account')}}">Account</a> to check your next date of payment
+                </div>
+              </div>
+              <a href="{{route('account')}}"><button type="button" class="fa fa-check-circle bg-primary">OK</button></a>
+         </center>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-          <button type="button" class="btn btn-primary">Save changes</button>
+          
         </div>
       </div>
     </div>
@@ -53,21 +60,17 @@
         </div>
 @endsection
 <script>
-(function poll(){
-   setTimeout(function(){
-      $.ajax({ url: "order", 
-      success: function(data){
-        if(data=="sucessfull"){
-     //Setup the next poll recursively
-    //$('#confirm').modal('show');
-    alert("popped");
-        }
-        else{
-          alert("failed");
-        }
-      poll(); 
-       
-      }, dataType: "json"});
-  }, 9000);
-})();    
+(function poll() {
+  setTimeout(function(){
+  $.getJSON('order', function (response) {
+    if (response.state=="success") {
+      $('#confirm').modal('show');
+    }
+    else if(response.state=="timeout"){
+      alert("failed");
+    }
+    setTimeout(poll, 15000);
+  });
+}, 15000);
+}());
   </script>
