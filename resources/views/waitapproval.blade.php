@@ -67,7 +67,7 @@
       $('#confirm').modal('show');
     }
     else if(response.state=="timeout"){
-      alert("failed");
+      window.location.href = "/check-out";
     }
     setTimeout(poll, 15000);
   });

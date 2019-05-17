@@ -23,9 +23,14 @@ class Kernel extends ConsoleKernel
      */
     protected function schedule(Schedule $schedule)
     {
+        $schedule->call(function () {
          $schedule->command('command:RefreshCappings')
                  ->daily();
+         $schedule->command('command:reminder')
+                 ->daily();
+                })->hourly();
     }
+
 
     /**
      * Register the Closure based commands for the application.
