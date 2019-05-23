@@ -348,38 +348,36 @@ public function order(){
     //generating cart numbers
        //$cartno="CartNo".$now_format.rand(1000,9999);
        if($allproducts){
-        $transaction= new Transactions;
-        $transaction->user_id=$user;
-        $transaction->Amount=$Amount;
-        $transaction->CartNo=$cartno;
-        $transaction->ReceiptNumber=$mpesareceiptcode;
-        $transaction->Phonenumber=$phone;
-        $transaction->Date=$date;
-        $transaction->Time=$time;
-        $transaction->save();
+             $transaction= new Transactions;
+             $transaction->user_id=$user;
+             $transaction->Amount=$Amount;
+             $transaction->CartNo=$cartno;
+             $transaction->ReceiptNumber=$mpesareceiptcode;
+             $transaction->Phonenumber=$phone;
+             $transaction->Date=$date;
+             $transaction->Time=$time;
+             $transaction->save();
         //file_put_contents($url, "");
         
         ////save orders to db
-             $date_today=date("m/d/Y");
-             $datetime=date("Y-m-d H:i:s", strtotime('+3 hours'));
-             $location=Cache::get('location');
-            //posting items in cart to confiemd orders table
-             $cachedtotalcost=array_sum(array_column($allproducts, 'totalcost'));
-             $post = new CartOrder;
-             $post->customer_id = $user;
-             $post->customername =Auth::user()->name;
-             $post->CartNo =$cartno;
-             $post->phonenumber = Auth::user()->phonenumber;
-             $post->email = Auth::user()->email;
-             $post->location = $location;
-             $post->totalcost= $cachedtotalcost;
-             $post->status= 'confirmed';
-             $post->date = $date_today;
-             $post->datetime= $datetime;
-             $post->save();
-          
-            
-        //   //save to cart
+               $date_today=date("m/d/Y");
+               $datetime=date("Y-m-d H:i:s", strtotime('+3 hours'));
+               $location=Cache::get('location');
+              //posting items in cart to confiemd orders table
+               $cachedtotalcost=array_sum(array_column($allproducts, 'totalcost'));
+               $post = new CartOrder;
+               $post->customer_id = $user;
+               $post->customername =Auth::user()->name;
+               $post->CartNo =$cartno;
+               $post->phonenumber = Auth::user()->phonenumber;
+               $post->email = Auth::user()->email;
+               $post->location = $location;
+               $post->totalcost= $cachedtotalcost;
+               $post->status= 'confirmed';
+               $post->date = $date_today;
+               $post->datetime= $datetime;
+               $post->save();
+          //save to cart
            foreach($allproducts as $allproduct){
                $post = new Cart;
                $post->cartorder =$cartno;
@@ -427,15 +425,6 @@ public function order(){
                     $name=Auth::user()->name;
                    //inserting paid cart to remindrs table
                    foreach($balances as $key=>$balance){
-                    //$data[] =[
-                    //    'date' =>  $dates[$key],
-                    //    'amount'=>$balance,
-                    //    'CartNo'=>$cartno,
-                    //    'user_id'=>$user,
-                    //    'status'=>"pending",
-                    //    'created_at'=>$now,
-                    //    'updated_at'=>$now,
-                    //   ];  
                     $reminder=new Reminders;
                     $reminder->CartNo=$cartno;
                     $reminder->user_id=$user;

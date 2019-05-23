@@ -46,6 +46,4 @@ class CartOrderController extends Controller
         return view('report.confirmordervendor')->with(compact('results'));
 
     }
-    
-
 }

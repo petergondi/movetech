@@ -12,7 +12,29 @@
 <link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.14.2/dist/bootstrap-table.min.css">
 <script src="https://unpkg.com/bootstrap-table@1.14.2/dist/bootstrap-table.min.js"></script>
 @section('content')  
- 
+ <!-- Modal -->
+<div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="exampleModalLabel">Subsequent Payment</h5>
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+          <span aria-hidden="true"><button type="button" class="btn btn-sm btn-secondary pull-right" data-dismiss="modal">Close</button></span>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label for="usr">Enter Mpesa Confirmation Code:</label>
+          <input type="text" class="form-control" id="code" placeholder="MFDHSXXXXXX" required/>
+        </div>
+      </div>
+      <div class="modal-footer">
+     
+        <button type="button" class="btn btn-sm btn-primary">Confirm</button>
+      </div>
+    </div>
+  </div>
+</div>
         <div class='row' >
                     <div class="col-sm-12" >
                             <center><h2>Payment Details</h2></center>
@@ -36,7 +58,7 @@
                               <h3>
                               <font color="green"> Remaining amount should be Paid after every two weeks. using paybill <b>483473</b>
                               </font></h4>
-                              <button class="btn btn-primary" type="submit">Pay Next Installment</button>
+                              <button class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" data-placement="top" title="Press this button after making payment">Activate Next Installment</button>
                                 <br><br>  
                                                 <table class="table table-dark bg-primary">
                                                 <thead>
