@@ -66,8 +66,8 @@
     if (response.state=="success") {
       $('#confirm').modal('show');
     }
-    else if(response.state=="timeout"){
-      window.location.href = "/check-out";
+    else{
+      alert("payment failed");
     }
     setTimeout(poll, 15000);
   });

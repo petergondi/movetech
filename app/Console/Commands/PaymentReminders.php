@@ -48,9 +48,10 @@ class PaymentReminders extends Command
          $date1 = new DateTime($now);
          $date2 = new DateTime($unpaid_cart->date);
          $interval = $date1->diff($date2);
+         $days_diff=$interval->format('%R%a');
          $message="Dear".$unpaid_cart->name."please make your next payment using paybill 400153 before".$unpaid_cart->date."then go to your 4-pay account and activate the payment";
          //send text reminder if the number of days remaining is 5 or less to the buyer
-         if($interval<=5){
+         if($days_diff<=5){
             $url="https://sms.movesms.co.ke/api/portalcompose?";
 
             $username = $settings->username;
@@ -61,7 +62,7 @@ class PaymentReminders extends Command
                 'username' => $username,
                 'api_key' => $apikey,
                 'sender' => $senderid,
-                'to' => $unpaid_cart->phonenumber,
+                'to' => "+254".(int)$unpaid_cart->phonenumber,
                 'message' => $message,
                 'msgtype' => 5,
                 'dlr' => 0,

@@ -7,6 +7,9 @@
     <title>System Portal</title>
     <!-- Tell the browser to be responsive to screen width -->
     <meta content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" name="viewport">
+    <link rel="stylesheet" href="{{asset('https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css')}}">
+	<script src="{{asset('https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js')}}"></script>
+	<script src="{{asset('https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js')}}"></script>
     <!-- Bootstrap 3.3.6 -->
     <link rel="stylesheet" href="{{ asset("bower_components/AdminLTE/bootstrap/css/bootstrap.min.css")}}">
     <!-- Font Awesome -->

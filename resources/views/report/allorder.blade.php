@@ -24,15 +24,14 @@
    <div class="form-group col-3">
      <label for="staticEmail2">File type</label>
     <select id="type" class="form-control-sm">
-  <option value="pdf">PDF</option>
-  <option value="csv">CSV</option>
+            <option value="3">EXCEL</option>
 </select>
   </div>
 </form>
       </div>
       <div class="modal-footer">
         <button type="button" class="btn  btn-sm btn-secondary" data-dismiss="modal">Close</button>
-      <button type="button" id="export" class="btn  btn-sm btn-primary"><i class="fa fa-download"></i>Save</button>
+        <a href="{{route('admin.all-order.export')}}"><button type="button" id="export" class="btn  btn-sm btn-primary"><i class="fa fa-download"></i>Save</button></a>
       </div>
     </div>
   </div>
@@ -89,6 +88,7 @@
                                                     <td> {{$result->location}}  </td>
                                                     <td> {{$result->totalcost}}  </td>
                                                     <td> {{$result->status}}  </td>
+                                                    <td> {{$result->created_at}}  </td>
                                                     <td>  </td>
                                                 </tr>
                                                 @endforeach
@@ -131,7 +131,7 @@
             }
         }
          var options={
-            format: 'mm/dd/yyyy',
+            format: 'yyyy-mm-dd',
             todayHighlight: true,
             autoclose: true,
           orientation: 'top auto'

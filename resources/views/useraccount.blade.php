@@ -30,15 +30,15 @@
                                 </center>
                                 <br><br>
                                 <h4 class="fa fa-user">Name:<font color="green"> {{$user}}</font></h4><br/>
-                              <h4 class="fa fa-money bg-primary">Amount Paid:<font color="green"> ksh.{{$amount}}</font></h4><br/>
-                              <h4 class="fa fa-money bg-primary">Total Cost:<font color="red"> ksh.{{$total}}</font></h4><br/>
-                              <h4 class="fa fa-money bg-primary">Remaining Due Amount:<font color="red"> ksh.{{$total_not_paid}}</font></h4>
+                              <h4 class="fa fa-money">Amount Paid:<font color="green"> ksh.{{$amount}}</font></h4><br/>
+                              <h4 class="fa fa-money">Total Cost:<font color="red"> ksh.{{$total}}</font></h4><br/>
+                              <h4 class="fa fa-money">Remaining Due Amount:<font color="red"> ksh.{{$total_not_paid}}</font></h4>
                               <h3>
                               <font color="green"> Remaining amount should be Paid after every two weeks. using paybill <b>483473</b>
                               </font></h4>
                               <button class="btn btn-primary" type="submit">Pay Next Installment</button>
                                 <br><br>  
-                                                <table class="table table-dark table-hover">
+                                                <table class="table table-dark bg-primary">
                                                 <thead>
                                                         <tr>
                                                           <th  scope="col">Schedule</th>

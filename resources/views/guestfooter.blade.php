@@ -1,5 +1,5 @@
 	<meta name="csrf-token" content="{{ csrf_token() }}">
-<script src="{{('http://code.jquery.com/jquery-3.3.1.min.js')}}">
+<script src="{{asset('http://code.jquery.com/jquery-3.3.1.min.js')}}">
       </script>
       <script src="{{asset('http://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/js/bootstrap.min.js')}}"></script>
 	<footer id="footer"><!--Footer-->

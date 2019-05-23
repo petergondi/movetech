@@ -20,9 +20,11 @@ use App\AdminCharge;
 use Carbon\Carbon;
 use App\Transactions;
 use App\Reminders;
+use App\test;
+ //require (__DIR__.'/../../callback.php');
 class GuestCustomerHomeController extends Controller
 {
-    
+   
     public function __construct()
     {
         $this->middleware('auth');
@@ -230,6 +232,7 @@ class GuestCustomerHomeController extends Controller
         $allproducts = Cache::get('cartproducts');
         $now = Carbon::now();
         $now_format=$now->format('d/m/Y');
+        $userphone=Auth::user()->phonenumber;
         //generating cart numbers
         $cartno="CartNo".$now_format.rand(1000,9999);
          Cache::put('cartno', $cartno, 34010);
@@ -239,37 +242,31 @@ class GuestCustomerHomeController extends Controller
             date_default_timezone_set('Africa/Nairobi');
             $BusinessShortCode ='400153';
             $PartyB=$BusinessShortCode;
-            $LipaNaMpesaPasskey = '53c4b78a6a03180c4bc923650161b2eea4ceefdd550e91d5341463cc83abbe63';     
-            $CallBackURL="https://9c24323b.ngrok.io/Mpesa/callback.php";
-            $PartyA =254725272888; // This is your phone number, 
-            $PhoneNumber =254725272888;
-            $AccountReference = $cartno;
-            $TransactionDesc = 'CART PAYMENT';
-            $Amount = '1';
-            $Timestamp = date('YmdHis');    
-            $Remarks="good";
+            $LipaNaMpesaPasskey ='53c4b78a6a03180c4bc923650161b2eea4ceefdd550e91d5341463cc83abbe63';     
+            $CallBackURL="https://0cd2ed98.ngrok.io/Mpesa/callback.php";
+            $PartyA ="254".(int)$userphone; // This is your phone number, 
+            $PhoneNumber ="254".(int)$userphone;
+            $AccountReference =$cartno;
+            $TransactionDesc ='CART PAYMENT';
+            $Amount =$request->min;
+            $Timestamp =date('YmdHis');    
+            $Remarks="Thank You for Shopping with us";
             $TransactionType="CustomerPayBillOnline";
             # header for access token
             $mpesa= new \Safaricom\Mpesa\Mpesa();
-
-       $stkPushSimulation=$mpesa->STKPushSimulation($BusinessShortCode, $LipaNaMpesaPasskey, $TransactionType, 
-       $Amount, $PartyA, $PartyB, $PhoneNumber, $CallBackURL, $AccountReference, $TransactionDesc, $Remarks);
-            print_r($stkPushSimulation);
+            $stkPushSimulation=$mpesa->STKPushSimulation($BusinessShortCode, $LipaNaMpesaPasskey, $TransactionType, 
+            $Amount, $PartyA, $PartyB, $PhoneNumber, $CallBackURL, $AccountReference, $TransactionDesc, $Remarks);
+            //print_r($stkPushSimulation);
             return $stkPushSimulation;
-           
-            //$request->session()->flash('alert-success', 'Please Wait for your Payment Approval');
+             //$request->session()->flash('alert-success', 'Please Wait for your Payment Approval, if this takes more than 2 mins please check your account to confirm if your payment was processed!!');
             //return redirect()->route('waitapproval');
         }
         else{
             $request->session()->flash('alert-danger', 'No item in the cart');
             return redirect()->route('viewcart');
         }
-            
-
     }
-
     public function directmessage( $phonenumber, $name,$id){
-
         $message='Dear '.$name.', to Confirm your order '.$id.' visit www.4paykenya.co.ke .Thank You.';
         $settings=SMSSetting::all()->first();
         if(empty($settings)){
@@ -279,7 +276,6 @@ class GuestCustomerHomeController extends Controller
         }else{
 
             $url="https://sms.movesms.co.ke/api/portalcompose?";
-
             $username = $settings->username;
             $apikey = $settings->apikey;
             $senderid = $settings->senderid;
@@ -325,33 +321,32 @@ class GuestCustomerHomeController extends Controller
     }
 
 public function order(){
-    $url = 'Mpesa/stkPushCallbackResponse.txt';
-    $data = file_get_contents($url); // put the contents of the file into a variable
-    $json = json_decode($data,TRUE); 
-    //getting result code
-    $check_status=$json['Body']['stkCallback']['ResultCode'];
-    if(!($check_status==0))
+   //check if the transaction went through
+    $check_transaction=test::where('Phonenumber',Auth::user()->phonenumber)->where('status',"pending")->first();
+    if(!($check_transaction))
    {
-        file_put_contents($url, "");
+        //file_put_contents($url, "");
         response()->json(['state' => 'timeout']);
    }
-   if($check_status==0 && !$json==""){
-         $Amount= $json['Body']['stkCallback']['CallbackMetadata']['Item'][0]['Value'];
-         $mpesareceiptcode= $json['Body']['stkCallback']['CallbackMetadata']['Item'][1]['Value'];
-         $date= date("m-d-Y", strtotime($json['Body']['stkCallback']['CallbackMetadata']['Item'][3]['Value'])); 
-         $time= date("h:i:s a", strtotime($json['Body']['stkCallback']['CallbackMetadata']['Item'][3]['Value']));
-         $phone= $json['Body']['stkCallback']['CallbackMetadata']['Item'][4]['Value'];
-         
+
+   else{
+         $Amount=$check_transaction->Amount;//$json['Body']['stkCallback']['CallbackMetadata']['Item'][0]['Value'];
+         $mpesareceiptcode=$check_transaction->ReceiptNumber; //$json['Body']['stkCallback']['CallbackMetadata']['Item'][1]['Value'];
+         $date=$check_transaction->actual_date; //date("m-d-Y", strtotime($json['Body']['stkCallback']['CallbackMetadata']['Item'][3]['Value'])); 
+         $time=$check_transaction->actual_time; //date("h:i:s a", strtotime($json['Body']['stkCallback']['CallbackMetadata']['Item'][3]['Value']));
+         $phone=(int)$check_transaction->Phonenumber; //$json['Body']['stkCallback']['CallbackMetadata']['Item'][4]['Value'];
+         //update status upon confirming transaction
+         test::where('Phonenumber',Auth::user()->phonenumber)->where('status',"pending")->update(['status'=>"confirmed"]);
          $user=Auth::user()->id;
        //check if there is a similar transaction in the db
          $check=Transactions::where('ReceiptNumber',$mpesareceiptcode)->first();
          if(!$check){
         $allproducts = Cache::get('cartproducts');
-        //$cartno=Cache::get('cartno');
-        $now = Carbon::now();
-        $now_format=$now->format('d/m/Y');
+        $cartno=Cache::get('cartno');
+        //$now = Carbon::now();
+        //$now_format=$now->format('d/m/Y');
     //generating cart numbers
-       $cartno="CartNo".$now_format.rand(1000,9999);
+       //$cartno="CartNo".$now_format.rand(1000,9999);
        if($allproducts){
         $transaction= new Transactions;
         $transaction->user_id=$user;
@@ -362,7 +357,7 @@ public function order(){
         $transaction->Date=$date;
         $transaction->Time=$time;
         $transaction->save();
-        file_put_contents($url, "");
+        //file_put_contents($url, "");
         
         ////save orders to db
              $date_today=date("m/d/Y");
@@ -372,7 +367,8 @@ public function order(){
              $cachedtotalcost=array_sum(array_column($allproducts, 'totalcost'));
              $post = new CartOrder;
              $post->customer_id = $user;
-             $post->CartNo = $cartno;
+             $post->customername =Auth::user()->name;
+             $post->CartNo =$cartno;
              $post->phonenumber = Auth::user()->phonenumber;
              $post->email = Auth::user()->email;
              $post->location = $location;
@@ -386,8 +382,9 @@ public function order(){
         //   //save to cart
            foreach($allproducts as $allproduct){
                $post = new Cart;
-               $post->cartorder = $cartno;
+               $post->cartorder =$cartno;
                $post->user_id= $user;
+               $post->customername =Auth::user()->name;
                $post->bussinessname = $allproduct->bussinessname;
                $post->productid = $allproduct->id;
                $post->modelnumber = $allproduct->modelnumber;
@@ -453,7 +450,7 @@ public function order(){
                    //Reminders::insert($data);
                    Cache::forget('cartproducts');
                    Cache::forget('location');
-                   //Cache::forget('cartno');
+                   Cache::forget('cartno');
                    $this->directmessage( Auth::user()->phonenumber, Auth::user()->fname,$user);
                    return response()->json(['state' => 'success']);
           }
@@ -470,14 +467,12 @@ public function order(){
 }
     
 }
+public function test(){
+    return view('test');
+}
 //debug function
 public function callback(){
-    $url = 'Mpesa/stkPushCallbackResponse.txt';
-    $data = file_get_contents($url); // put the contents of the file into a variable
-    $json = json_decode($data,TRUE); 
-    //getting result code
-    $check_status=$json['Body']['stkCallback']['ResultCode'];
-    
+    test::where('Phonenumber',Auth::user()->phonenumber)->where('status',"pending")->update(['status'=>"confirmed"]);
 }
 public function removeItem(Request $request,$id){
     //$id=$request->id;
@@ -494,8 +489,8 @@ public function removeItem(Request $request,$id){
     if($data==1){
         Cache::forget('cartproducts');
    }
-    //$request->session()->flash('alert-success',"removed successfully!");
-    //return redirect()->back();
+    $request->session()->flash('alert-success',"removed successfully!");
+    return redirect()->back();
     //$url=request("Body.stkCallback.CallbackMetadata"); 
    
 }

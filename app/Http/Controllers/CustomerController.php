@@ -32,17 +32,17 @@ class CustomerController extends Controller
     }
 
     public function showcustomer(Request $request){
-        $results=User::orderBY('id','disc')->paginate(50);
+        $results=User::orderBY('id','desc')->paginate(50);
         return view('customer.customers')->with(compact('results'));
     }
 
     public function allcartorder(Request $request){
-        $results=CartOrder::orderBY('id','disc')->paginate(50);
+        $results=CartOrder::orderBY('id','desc')->paginate(50);
         return view('report.allorder')->with(compact('results'));
     }
 
     public function allapprovedorder(Request $request){
-        $results=CartOrder::where('status','confirmed')->orderBY('id','disc')->paginate(50);
+        $results=CartOrder::where('status','confirmed')->orderBY('id','desc')->paginate(50);
         return view('report.approvedorder')->with(compact('results'));
     }
 

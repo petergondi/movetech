@@ -1,0 +1,1 @@
+<a  href="{!! route('show_activate_vendor_acc', ['token'=>$tokens]) !!}"><font style="font-size:20px;" color="blue">  Click here  </font> </a>

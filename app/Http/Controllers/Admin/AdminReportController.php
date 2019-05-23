@@ -38,7 +38,7 @@ class AdminReportController extends Controller
         ];
     
         $queryBuilder = CartOrder::select(['date', 'datetime', 'customername','phonenumber','email','location','totalcost','status']) // Do some querying..
-                            ->whereBetween('date', [$fromDate, $toDate]);
+                            ->whereBetween('created_at', [$fromDate, $toDate]);
     
         $columns = [ // Set Column to be displayed
             'date', 'datetime', 'customername','phonenumber','email','location','totalcost','status'
@@ -69,7 +69,7 @@ class AdminReportController extends Controller
         ];
     
         $queryBuilder = CartOrder::select(['date', 'datetime', 'customername','phonenumber','email','location','totalcost','status']) // Do some querying..
-                            ->whereBetween('date', [$fromDate, $toDate]);
+                            ->whereBetween('created_at', [$fromDate, $toDate]);
     
         $columns = [ // Set Column to be displayed
             'date', 'datetime', 'customername','phonenumber','email','location','totalcost','status'
@@ -99,11 +99,11 @@ public function approvedOrders(Request $request)
         'Registered on' => $fromDate . ' To ' . $toDate
     ];
 
-    $queryBuilder = CartOrder::select(['date', 'datetime', 'customername','phonenumber','email','location','totalcost','status']) // Do some querying..
-                        ->where('status','confirm')->whereBetween('date', [$fromDate, $toDate]);
+    $queryBuilder = CartOrder::select(['date', 'datetime','customername','phonenumber','email','location','totalcost','status']) // Do some querying..
+                        ->where('status','confirm')->whereBetween('created_at', [$fromDate, $toDate]);
 
     $columns = [ // Set Column to be displayed
-        'date', 'datetime', 'customername','phonenumber','email','location','totalcost','status'
+        'date', 'datetime','customername','phonenumber','email','location','totalcost','status'
     ];
 
     // Generate Report with flexibility to manipulate column class even manipulate column value (using Carbon, etc).
@@ -130,7 +130,7 @@ public function customers(Request $request)
     ];
 
     $queryBuilder = User::select(['fname', 'name', 'location','phonenumber','email','idno','cap','balance','status']) // Do some querying..
-                        ->whereBetween('registered_at', [$fromDate, $toDate]);
+                        ->whereBetween('created_at', [$fromDate, $toDate]);
 
     $columns = [ // Set Column to be displayed
         'fname', 'name', 'location','phonenumber','email','idno','cap','balance','status'

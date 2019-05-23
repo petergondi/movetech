@@ -12,7 +12,9 @@
 
     <link rel="apple-touch-icon" href="{{asset('https://i.imgur.com/QRAUqs9.png')}}">
     <link rel="shortcut icon" href="{{asset('https://i.imgur.com/QRAUqs9.png')}}">
-
+    <link rel="stylesheet" href="{{asset('https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css')}}">
+	<script src="{{asset('https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js')}}"></script>
+	<script src="{{asset('https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js')}}"></script>
     <link rel="stylesheet" href="{{asset('https://cdn.jsdelivr.net/npm/normalize.css@8.0.0/normalize.min.css')}}">
     <link rel="stylesheet" href="{{asset('https://cdn.jsdelivr.net/npm/bootstrap@4.1.3/dist/css/bootstrap.min.css')}}">
     <link rel="stylesheet" href="{{asset('https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css')}}">

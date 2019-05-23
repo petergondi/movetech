@@ -23,9 +23,8 @@
   </div>
    <div class="form-group col-3">
      <label for="staticEmail2">File type</label>
-    <select class="form-control-sm">
-  <option value="" selected="selected">Select</option>
-  <option value="csv">EXCEL</option>
+     <select id="type" class="form-control-sm">
+        <option value="3">EXCEL</option>
 </select>
   </div>
 </form>
@@ -131,7 +130,7 @@
             }
         }
   var options={
-            format: 'mm/dd/yyyy',
+            format: 'yyyy-mm-dd',
             todayHighlight: true,
             autoclose: true,
           orientation: 'top auto'

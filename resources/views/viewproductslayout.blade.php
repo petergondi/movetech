@@ -16,7 +16,10 @@ use Illuminate\Support\Facades\Cache;
     <link href="{{asset('frontend/css/price-range.css')}}" rel="stylesheet">
     <link href="{{asset('frontend/css/animate.css')}}" rel="stylesheet">
 	<link href="{{asset('frontend/css/main3.css')}}" rel="stylesheet">
-	<link href="{{asset('frontend/css/responsive.css')}}" rel="stylesheet">
+    <link href="{{asset('frontend/css/responsive.css')}}" rel="stylesheet">
+    <link rel="stylesheet" href="{{asset('https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css')}}">
+	<script src="{{asset('https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js')}}"></script>
+	<script src="{{asset('https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js')}}"></script>
     <!--[if lt IE 9]>
     <script src="js/html5shiv.js"></script>
     <script src="js/respond.min.js"></script>

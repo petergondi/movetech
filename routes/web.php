@@ -72,10 +72,15 @@ Route::get('account', 'Account@showAccount')->name('account');
 Route::post('check-out', 'GuestCustomerHomeController@confirmorder')->name('confirm_order');
 Route::get('order', 'GuestCustomerHomeController@order')->name('order');
 Route::get('waitapproval', 'GuestCustomerHomeController@showapprovalForm')->name('waitapproval');
-Route::get('callback', 'GuestCustomerHomeController@callback');
+
+Route::get('test', 'GuestCustomerHomeController@test');
+Route::get('callback','GuestCustomerHomeController@callback');
 
 //share
-Route::get('/share','GuestCustomerHomeController@share');
+Route::get('share', function()
+{
+	return Share::load('http://www.bbc.com', 'My example')->twitter();
+});
 
 
 //admin login routes
@@ -191,6 +196,7 @@ Route::prefix('admin')->group(function (){
     //adminapprovedorder
     Route::get('/approved-order', 'CustomerController@allapprovedorder')->name('adminapprovedorder');
     //approved orders
+    Route::get('/all-order/export', 'Admin\AdminReportController@allOrder')->name('admin.all-order.export');
     Route::get('/approved-orders/export', 'Admin\AdminReportController@approvedOrders')->name('admin.approved-orders.export');
     //customers
     Route::get('/customers/export', 'Admin\AdminReportController@customers')->name('admin.customers.export');
