@@ -75,7 +75,7 @@ Route::get('waitapproval', 'GuestCustomerHomeController@showapprovalForm')->name
 
 Route::get('test', 'GuestCustomerHomeController@test');
 Route::get('callback','GuestCustomerHomeController@callback');
-
+Route::get('subsequent','SubsequentPay@sample');
 //share
 Route::get('share', function()
 {

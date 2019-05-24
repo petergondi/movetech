@@ -336,7 +336,7 @@ public function order(){
          $time=$check_transaction->actual_time; //date("h:i:s a", strtotime($json['Body']['stkCallback']['CallbackMetadata']['Item'][3]['Value']));
          $phone=(int)$check_transaction->Phonenumber; //$json['Body']['stkCallback']['CallbackMetadata']['Item'][4]['Value'];
          //update status upon confirming transaction
-         test::where('Phonenumber',Auth::user()->phonenumber)->where('status',"pending")->update(['status'=>"confirmed"]);
+         test::where('Phonenumber',Auth::user()->phonenumber)->where('status',"pending")->first()->update(['status'=>"confirmed"]);
          $user=Auth::user()->id;
        //check if there is a similar transaction in the db
          $check=Transactions::where('ReceiptNumber',$mpesareceiptcode)->first();

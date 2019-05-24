@@ -4,11 +4,12 @@ namespace App;
 
 use Illuminate\Database\Eloquent\Model;
 
-class test extends Model
+class C2B extends Model
 {
     //
-    protected $fillable = [
+      //
+      protected $fillable = [
         'status',
     ];
-    public $table="test";
+    public $table="c2b";
 }
