@@ -9,8 +9,9 @@
     padding-right: 60px;
 }
 </style>
-<link rel="stylesheet" href="https://unpkg.com/bootstrap-table@1.14.2/dist/bootstrap-table.min.css">
-<script src="https://unpkg.com/bootstrap-table@1.14.2/dist/bootstrap-table.min.js"></script>
+  <link rel="stylesheet" href="{{asset('https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css')}}">
+	<script src="{{asset('https://ajax.googleapis.com/ajax/libs/jquery/3.4.0/jquery.min.js')}}"></script>
+	<script src="{{asset('https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js')}}"></script>
 @section('content')  
  <!-- Modal -->
 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -58,7 +59,7 @@
                               <h3>
                               <font color="green"> Remaining amount should be Paid after every two weeks. using paybill <b>483473</b>
                               </font></h4>
-                              <button class="btn btn-primary" data-toggle="modal" data-target="#exampleModal" data-placement="top" title="Press this button after making payment">Activate Next Installment</button>
+                            <a href="{{route('subsequentpay')}}"><button class="btn btn-primary"  >Mae Payment Next Installment</button></a>
                                 <br><br>  
                                                 <table class="table table-dark bg-primary">
                                                 <thead>

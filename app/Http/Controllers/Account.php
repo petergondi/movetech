@@ -27,14 +27,12 @@ class Account extends Controller
         $amounts=Transactions::where('user_id',$id)->where('CartNo', $cartno)->pluck('Amount');
         $amount=$amounts[0];
         //remaining amount
-        $totals_to_be_paid=CartOrder::where('customer_id',$id)->where('CartNo', $cartno)->pluck('totalcost');
-        $amount=$amounts[0];
-        $total=$totals_to_be_paid[0];
+        $not_paid=CartOrder::where('customer_id',$id)->where('CartNo', $cartno)->where('status','confirmed')->first();
+        $total=$not_paid->totalcost;
         //next payment details
         $next_payments_amounts=Reminders::where('user_id',$id)->where('status','pending')->pluck('amount');
         $next_payments=Reminders::where('user_id',$id)->where('status','pending')->get();
-        $payment_array=json_decode(json_encode($next_payments_amounts), true);
-        $total_not_paid=array_sum($payment_array);
+        $total_not_paid=$not_paid->DueAmount;
          
         return view('useraccount',compact('user','amount','total','next_payments','total_not_paid'));
        

@@ -73,9 +73,11 @@ Route::post('check-out', 'GuestCustomerHomeController@confirmorder')->name('conf
 Route::get('order', 'GuestCustomerHomeController@order')->name('order');
 Route::get('waitapproval', 'GuestCustomerHomeController@showapprovalForm')->name('waitapproval');
 
-Route::get('test', 'GuestCustomerHomeController@test');
+Route::post('test', 'GuestCustomerHomeController@test');
 Route::get('callback','GuestCustomerHomeController@callback');
 Route::get('subsequent','SubsequentPay@sample');
+Route::get('subsequentpay','SubsequentPay@initiatePay')->name('subsequentpay');
+//share
 //share
 Route::get('share', function()
 {

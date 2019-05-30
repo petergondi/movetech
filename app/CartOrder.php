@@ -7,4 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 class CartOrder extends Model
 {
     //
+    protected $fillable = [
+        'DueAmount'
+    ];
 }

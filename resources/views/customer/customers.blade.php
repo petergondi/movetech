@@ -1,7 +1,7 @@
 @extends('adminlayout')
 @section('content')  
 <link rel="stylesheet" href="{{asset('https://fonts.googleapis.com/icon?family=Material+Icons')}}">
-<script src="{{asset('https://ajax.googleapis.com/ajax/libs/jquery/1.12.4/jquery.min.js')}}"></script>
+<script src="{{asset('https://cdnjs.cloudflare.com/ajax/libs/jquery/3.4.1/jquery.min.js')}}"></script>
   <script type="text/javascript" src="{{asset('https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/js/bootstrap-datepicker.min.js')}}"></script>
 <link rel="stylesheet" href="{{asset('http://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css')}}">
 <link rel="stylesheet" href="{{asset('https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.4.1/css/bootstrap-datepicker3.css')}}"/> 
@@ -149,59 +149,56 @@
     e.preventDefault();
        var from = $('#date').val();
        var to = $('#date1').val();
-       var type = $('#type').val();
+       var types = $('#type').val();
        $.ajax({
-           type: "get",
+           cache: false,
+           type: "GET",
            url:'{{URL::to('admin/customers/export')}}',
-           data: {from:from, to:to,type:type,_token: '{!! csrf_token() !!}'},
-          xhrFields: {
+           data: {from:from, to:to,type:types,_token: '{!! csrf_token() !!}'},
+           xhrFields: {
                 responseType: 'blob'
             },
-            success: function (response, status, xhr) {
-           var filename = "";                   
-                var disposition = xhr.getResponseHeader('Content-Disposition');
-
-                 if (disposition) {
-                    var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
-                    var matches = filenameRegex.exec(disposition);
-                    if (matches !== null && matches[1]) filename = matches[1].replace(/['"]/g, '');
-                } 
-                var linkelem = document.createElement('a');
-                try {
-                    var blob = new Blob([response], { type: 'application/octet-stream' });                        
-
-                    if (typeof window.navigator.msSaveBlob !== 'undefined') {
-                        //   IE workaround for "HTML7007: One or more blob URLs were revoked by closing the blob for which they were created. These URLs will no longer resolve as the data backing the URL has been freed."
-                        window.navigator.msSaveBlob(blob, filename);
-                    } else {
-                        var URL = window.URL || window.webkitURL;
-                        var downloadUrl = URL.createObjectURL(blob);
-
-                        if (filename) { 
-                            // use HTML5 a[download] attribute to specify filename
-                            var a = document.createElement("a");
-
-                            // safari doesn't support this yet
-                            if (typeof a.download === 'undefined') {
-                                window.location = downloadUrl;
-                            } else {
-                                a.href = downloadUrl;
-                                a.download = filename;
-                                document.body.appendChild(a);
-                                a.target = "_blank";
-                                a.click();
-                            }
-                        } else {
-                            window.location = downloadUrl;
-                        }
-                    }   
-
-                } catch (ex) {
-                    console.log(ex);
-                } 
+           success: function(response, status,  xhrFields) {
+        // check for a filename
+        var filename = "";
+        var disposition =  xhrFields.getResponseHeader('Content-Disposition');
+        if (disposition && disposition.indexOf('attachment') !== -1) {
+            var filenameRegex = /filename[^;=\n]*=((['"]).*?\2|[^;\n]*)/;
+            var matches = filenameRegex.exec(disposition);
+            if (matches != null && matches[1]) filename = matches[1].replace(/['"]/g, '');
         }
-        });
+
+        var type =  xhrFields.getResponseHeader('Content-Type');
+        var blob = new Blob([response], { type: type });
+
+        if (typeof window.navigator.msSaveBlob !== 'undefined') {
+            // IE workaround for "HTML7007: One or more blob URLs were revoked by closing the blob for which they were created. These URLs will no longer resolve as the data backing the URL has been freed."
+            window.navigator.msSaveBlob(blob, filename);
+        } else {
+            var URL = window.URL || window.webkitURL;
+            var downloadUrl = URL.createObjectURL(blob);
+
+            if (filename) {
+                // use HTML5 a[download] attribute to specify filename
+                var a = document.createElement("a");
+                // safari doesn't support this yet
+                if (typeof a.download === 'undefined') {
+                    window.location = downloadUrl;
+                } else {
+                    a.href = downloadUrl;
+                    a.download = filename;
+                    document.body.appendChild(a);
+                    a.click();
+                }
+            } else {
+                window.location = downloadUrl;
+            }
+
+            setTimeout(function () { URL.revokeObjectURL(downloadUrl); }, 100); // cleanup
+        }
+    }
        });
+    });
 
 
 </script>

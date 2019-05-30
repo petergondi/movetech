@@ -21,7 +21,7 @@ use Carbon\Carbon;
 use App\Transactions;
 use App\Reminders;
 use App\test;
- //require (__DIR__.'/../../callback.php');
+ 
 class GuestCustomerHomeController extends Controller
 {
    
@@ -30,9 +30,8 @@ class GuestCustomerHomeController extends Controller
         $this->middleware('auth');
     }
 
-    protected $cachedtotalcosts;
-    protected $url;
-    public function customerhome()
+    
+public function customerhome()
     {
         $this->url="ww.bbc.com";
             //return Auth::user()->name;
@@ -59,11 +58,9 @@ class GuestCustomerHomeController extends Controller
 
         
     }
-    public function share(){
-        return $this->url;//\Share::load($this->url, 'My example')->facebook();
-    }
 
-    public function addproduct_tocart(Request $request){
+public function addproduct_tocart(Request $request)
+   {
         $size=$request->size;
         $color=$request->color;
         $pieces=$request->pieces;
@@ -137,7 +134,8 @@ class GuestCustomerHomeController extends Controller
         }
     }
 
-    public function view_cart(){
+public function view_cart()
+   {
          
         //  $other_collection=Product::where('id', 8)->get(['id','modelnumber','productname']);
         //  Cache::put('products', $other_collection, 34010);
@@ -178,7 +176,8 @@ class GuestCustomerHomeController extends Controller
        return  $allproducts;
     }
 
-    public function vi_ew_cart(Request $request){
+public function vi_ew_cart(Request $request)
+   {
         $admincharge=AdminCharge::where('id',1)->pluck('fee');
         $allproducts = Cache::get('cartproducts');
         if($allproducts){
@@ -201,34 +200,46 @@ class GuestCustomerHomeController extends Controller
          //return  $allproducts; 
     }
 
-    public function proceedto_checkout(Request $request){
+public function proceedto_checkout(Request $request)
+   {
         $admincharge=AdminCharge::where('id',1)->pluck('fee');
         $allproducts = Cache::get('cartproducts');
-        if($allproducts){
-            $cachedtotalcost = array_sum(array_column($allproducts, 'totalcost'));
-            $allproducts=$allproducts;
-            $count=count($allproducts);
-        }else{
-            $cachedtotalcost=0;
-            $allproducts='';
-            $count=0;
+        $adminfee=$admincharge[0];
+            $vendors=DB::select( DB::raw( "SELECT * FROM vendors ORDER BY priority  + 0 DESC" ) );
+            $categories=DB::select( DB::raw("SELECT * FROM categories ORDER BY priority  + 0 DESC limit 5 ") );
+            $leftcategories=DB::select( DB::raw("SELECT * FROM categories ORDER BY priority  + 0 DESC") );
+        if(!$allproducts)
+        {
+            return view('viewproceedtocheckout-nocart',compact('vendors'));
+        }
+        else{
+            if($allproducts){
+                $cachedtotalcost = array_sum(array_column($allproducts, 'totalcost'));
+                $allproducts=$allproducts;
+                $count=count($allproducts);
+            }else{
+                $cachedtotalcost=0;
+                $allproducts='';
+                $count=0;
+            }
+            
+            
+           
+            return view('viewproceedtocheckout')->with(compact('vendors','categories','leftcategories','allproducts','cachedtotalcost','count','adminfee'));
         }
         
-        $adminfee=$admincharge[0];
-        $vendors=DB::select( DB::raw( "SELECT * FROM vendors ORDER BY priority  + 0 DESC" ) );
-        $categories=DB::select( DB::raw("SELECT * FROM categories ORDER BY priority  + 0 DESC limit 5 ") );
-        $leftcategories=DB::select( DB::raw("SELECT * FROM categories ORDER BY priority  + 0 DESC") );
-       
-        return view('viewproceedtocheckout')->with(compact('vendors','categories','leftcategories','allproducts','cachedtotalcost','count','adminfee'));
         
     }
 
-    public function confirmorder(Request $request){
+public function confirmorder(Request $request)
+   {
         if($request->amount<$request->min){
             $request->session()->flash('alert-danger', 'you cannot enter less than.'.$request->min);
             return redirect()->back();
         }
         //process payment
+        $passkey='53c4b78a6a03180c4bc923650161b2eea4ceefdd550e91d5341463cc83abbe63';
+        $shortcode='400153';
         $allproducts = Cache::get('cartproducts');
         $now = Carbon::now();
         $now_format=$now->format('d/m/Y');
@@ -240,10 +251,10 @@ class GuestCustomerHomeController extends Controller
             $location=$request->location;
             Cache::put('location', $location, 34010);
             date_default_timezone_set('Africa/Nairobi');
-            $BusinessShortCode ='400153';
-            $PartyB=$BusinessShortCode;
-            $LipaNaMpesaPasskey ='53c4b78a6a03180c4bc923650161b2eea4ceefdd550e91d5341463cc83abbe63';     
-            $CallBackURL="https://0cd2ed98.ngrok.io/Mpesa/callback.php";
+            $LipaNaMpesaPasskey =$passkey;
+            $BusinessShortCode =$shortcode;
+            $PartyB=$BusinessShortCode;  
+            $CallBackURL="https://4paykenya.co.ke/test";
             $PartyA ="254".(int)$userphone; // This is your phone number, 
             $PhoneNumber ="254".(int)$userphone;
             $AccountReference =$cartno;
@@ -266,7 +277,8 @@ class GuestCustomerHomeController extends Controller
             return redirect()->route('viewcart');
         }
     }
-    public function directmessage( $phonenumber, $name,$id){
+public function directmessage( $phonenumber, $name,$id)
+    {
         $message='Dear '.$name.', to Confirm your order '.$id.' visit www.4paykenya.co.ke .Thank You.';
         $settings=SMSSetting::all()->first();
         if(empty($settings)){
@@ -315,49 +327,39 @@ class GuestCustomerHomeController extends Controller
 
     }
     
-    public function showapprovalForm(){
+public function showapprovalForm()
+    {
+        
         return view('waitapproval');
 
     }
 
-public function order(){
-   //check if the transaction went through
-    $check_transaction=test::where('Phonenumber',Auth::user()->phonenumber)->where('status',"pending")->first();
-    if(!($check_transaction))
+public function order()
    {
-        //file_put_contents($url, "");
-        response()->json(['state' => 'timeout']);
-   }
-
-   else{
-         $Amount=$check_transaction->Amount;//$json['Body']['stkCallback']['CallbackMetadata']['Item'][0]['Value'];
-         $mpesareceiptcode=$check_transaction->ReceiptNumber; //$json['Body']['stkCallback']['CallbackMetadata']['Item'][1]['Value'];
-         $date=$check_transaction->actual_date; //date("m-d-Y", strtotime($json['Body']['stkCallback']['CallbackMetadata']['Item'][3]['Value'])); 
-         $time=$check_transaction->actual_time; //date("h:i:s a", strtotime($json['Body']['stkCallback']['CallbackMetadata']['Item'][3]['Value']));
-         $phone=(int)$check_transaction->Phonenumber; //$json['Body']['stkCallback']['CallbackMetadata']['Item'][4]['Value'];
+    include('https://callback.4paykenya.co.ke/Mpesa/subsequent.php');
+   //check if the transaction went through
+    //$check_transaction=test::where('Phonenumber',Auth::user()->phonenumber)->where('status',"pending")->first();
+   if($mpesareceiptcode){
          //update status upon confirming transaction
-         test::where('Phonenumber',Auth::user()->phonenumber)->where('status',"pending")->first()->update(['status'=>"confirmed"]);
+         //test::where('Phonenumber',Auth::user()->phonenumber)->where('status',"pending")->first()->update(['status'=>"confirmed"]);
          $user=Auth::user()->id;
        //check if there is a similar transaction in the db
          $check=Transactions::where('ReceiptNumber',$mpesareceiptcode)->first();
          if(!$check){
         $allproducts = Cache::get('cartproducts');
-        $cartno=Cache::get('cartno');
-        //$now = Carbon::now();
-        //$now_format=$now->format('d/m/Y');
-    //generating cart numbers
-       //$cartno="CartNo".$now_format.rand(1000,9999);
-       if($allproducts){
-             $transaction= new Transactions;
-             $transaction->user_id=$user;
-             $transaction->Amount=$Amount;
-             $transaction->CartNo=$cartno;
-             $transaction->ReceiptNumber=$mpesareceiptcode;
-             $transaction->Phonenumber=$phone;
-             $transaction->Date=$date;
-             $transaction->Time=$time;
-             $transaction->save();
-        //file_put_contents($url, "");
+        //$cartno=Cache::get('cartno');
+       
+          if($allproducts)
+          {
+                $transaction= new Transactions;
+                $transaction->user_id=$user;
+                $transaction->Amount=$Amount;
+                $transaction->CartNo=1345;
+                $transaction->ReceiptNumber=$mpesareceiptcode;
+                $transaction->Phonenumber=$phone;
+                $transaction->Date=$date;
+                $transaction->Time=$time;
+                $transaction->save();
         
         ////save orders to db
                $date_today=date("m/d/Y");
@@ -368,11 +370,12 @@ public function order(){
                $post = new CartOrder;
                $post->customer_id = $user;
                $post->customername =Auth::user()->name;
-               $post->CartNo =$cartno;
+               $post->CartNo =1345;
                $post->phonenumber = Auth::user()->phonenumber;
                $post->email = Auth::user()->email;
-               $post->location = $location;
+               $post->location = "kisumu";
                $post->totalcost= $cachedtotalcost;
+               $post->DueAmount= $cachedtotalcost-$Amount;
                $post->status= 'confirmed';
                $post->date = $date_today;
                $post->datetime= $datetime;
@@ -380,7 +383,7 @@ public function order(){
           //save to cart
            foreach($allproducts as $allproduct){
                $post = new Cart;
-               $post->cartorder =$cartno;
+               $post->cartorder =1345;
                $post->user_id= $user;
                $post->customername =Auth::user()->name;
                $post->bussinessname = $allproduct->bussinessname;
@@ -414,39 +417,42 @@ public function order(){
                    else {
                        $additional=0;
                    }
-                   $balances=[$totalcost,$totalcost,($totalcost+$additional)];
-                   $Date1= date("Y-m-d");
-                   $Date2=date('Y-m-d', strtotime($Date1. ' + 14days'));
-                   $Date3=date('Y-m-d', strtotime($Date1. ' + 28days'));
-                   $Date4=date('Y-m-d', strtotime($Date1. ' + 42days'));
-                   $dates=[$Date2,$Date3,$Date4];
-                   $schedules=['Second','Third','Final'];
-                    $phone=Auth::user()->phonenumber;
-                    $name=Auth::user()->name;
-                   //inserting paid cart to remindrs table
-                   foreach($balances as $key=>$balance){
-                    $reminder=new Reminders;
-                    $reminder->CartNo=$cartno;
-                    $reminder->user_id=$user;
-                    $reminder->date=$dates[$key];
-                    $reminder->schedule=$schedules[$key];
-                    $reminder->amount=$balance;
-                    $reminder->name=$name;
-                    $reminder->phonenumber=$phone;
-                    $reminder->status="pending";
-                    $reminder->save();
-                   }
+                $balances=[$Amount,$totalcost,$totalcost,($totalcost+$additional)];
+                $Date1= date("Y-m-d");
+                $Date2=date('Y-m-d', strtotime($Date1. ' + 14days'));
+                $Date3=date('Y-m-d', strtotime($Date1. ' + 28days'));
+                $Date4=date('Y-m-d', strtotime($Date1. ' + 42days'));
+                $dates=[$Date1,$Date2,$Date3,$Date4];
+                $schedules=['First','Second','Third','Final'];
+                $status=['Confirmed','pending','pending','pending'];
+                 $phone=Auth::user()->phonenumber;
+                 $name=Auth::user()->name;
+
+                //inserting paid cart to remindrs table
+                foreach($balances as $key=>$balance)
+                {
+                 $reminder=new Reminders;
+                 $reminder->CartNo=1345;
+                 $reminder->user_id=$user;
+                 $reminder->date=$dates[$key];
+                 $reminder->schedule=$schedules[$key];
+                 $reminder->amount=$balance;
+                 $reminder->name=$name;
+                 $reminder->phonenumber=$phone;
+                 $reminder->status=$status[$key];
+                 $reminder->save();
+                }
                    //Reminders::insert($data);
-                   Cache::forget('cartproducts');
-                   Cache::forget('location');
-                   Cache::forget('cartno');
-                   $this->directmessage( Auth::user()->phonenumber, Auth::user()->fname,$user);
-                   return response()->json(['state' => 'success']);
+                Cache::forget('cartproducts');
+                //Cache::forget('location');
+                //Cache::forget('cartno');
+                $this->directmessage( Auth::user()->phonenumber, Auth::user()->fname,$user);
+                return response()->json(['state' => 'success']);
           }
           else{
-            response()->json(['state' => 'timeout']);
-            //$request->session()->flash('alert-danger', 'An error has occured in your payment');
-            //return redirect()->route('viewcart');
+               response()->json(['state' => 'timeout']);
+               //$request->session()->flash('alert-danger', 'An error has occured in your payment');
+               //return redirect()->route('viewcart');
           }
          
              
@@ -456,14 +462,24 @@ public function order(){
 }
     
 }
-public function test(){
-    return view('test');
-}
+public function test(Request $request)
+   {
+    $stkCallbackResponse = $request['Body']['stkCallback']['ResultCode'];//file_get_contents('php://input');
+    $logFile = "timeout.json";
+    $log = fopen($logFile, "a");
+    fwrite($log, $stkCallbackResponse);
+    fclose($log);
+    //echo"peter";
+   }
+
 //debug function
-public function callback(){
-    test::where('Phonenumber',Auth::user()->phonenumber)->where('status',"pending")->update(['status'=>"confirmed"]);
-}
-public function removeItem(Request $request,$id){
+public function callback()
+   {
+    include('Mpesa\test.php');
+   echo $test;
+   }
+public function removeItem(Request $request,$id)
+   {
     //$id=$request->id;
     //pull retrives the value and removes it from the cart
     $cache = Cache::pull('cartproducts');
