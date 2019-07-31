@@ -31,10 +31,9 @@
                                                         </div> </a>
                                                        <hr>
                                                        <a onclick="addtocartone({{$result->id}})" class="btn btn-default add-to-cart"><i class="fa fa-shopping-cart"></i>Add to cart</a>
-                                                   
                                                    </div>
-                                                   
-                                                   
+                                                   <br/>
+                                                 
                                                </div>
                                            </div>
                                        </div>

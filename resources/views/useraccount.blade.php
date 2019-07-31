@@ -59,7 +59,7 @@
                               <h3>
                               <font color="green"> Remaining amount should be Paid after every two weeks. using paybill <b>483473</b>
                               </font></h4>
-                            <a href="{{route('subsequentpay')}}"><button class="btn btn-primary"  >Mae Payment Next Installment</button></a>
+                            <a href="{{route('subsequentpay')}}"><button class="btn btn-primary"  >Make Payment for Next Installment</button></a>
                                 <br><br>  
                                                 <table class="table table-dark bg-primary">
                                                 <thead>

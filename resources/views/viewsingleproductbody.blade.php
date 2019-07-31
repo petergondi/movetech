@@ -1,7 +1,7 @@
 
                         <?php
 							use App\Category;
-							use App\Subcategory;
+                            use App\Subcategory;
 						?>
 @extends('viewproductslayout')
 @section('content')  
@@ -133,7 +133,8 @@
                                                                             Ksh 1000
                                                                         @endif
                                                     </p></font></strike>
-                                                      <a href="/share">share</a>
+                                                    <center><a href="https://www.facebook.com/sharer/sharer.php?u={{url()->current()}}&display=popup"> share to facebook</a></center><br/>
+                                                    <center><a href="https://twitter.com/intent/tweet?url=<?=urlencode(URL::current())?>"> share to twitter </a></center>
                                                 </div>
                                                 <div  class="col-sm-4" >
                                                     

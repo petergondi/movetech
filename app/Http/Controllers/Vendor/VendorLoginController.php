@@ -175,10 +175,7 @@ class VendorLoginController extends Controller
         $post->save();
 
         $id= $post->id;
-
             $this->directmessage( $phonenumber,$email, $smstoken,$emailtoken, $name, $id);
-
-
             $request->session()->flash('alert-warning', 'Account Created.Activate your Account Using SMS Code sent to your Phone number and Email');
            
            return redirect()->back();
@@ -210,8 +207,6 @@ class VendorLoginController extends Controller
             set_time_limit(10000);
 
             $url="https://sms.movesms.co.ke/api/portalcompose?";
-            
-
             $postData = array(
             //  'action' => 'compose',
                 'username' => $username,
@@ -273,7 +268,6 @@ class VendorLoginController extends Controller
 
 			
 		        $mail = new PHPMailer();
-
 		        $mail->IsSMTP();
 		        $mail->Host =$host;
 		        $mail->SMTPAuth = true;
@@ -426,7 +420,6 @@ require './phpmailer/PHPMailer_5.2.0/class.phpmailer.php';
         $result1=str_replace(["[name]", "[link]"], [$name, $text], $msg);
         return $result1;
     }
-
     public function show_update_vendor_form(Request $request){
         $token= $request->token;
         return view('vendor.updateform')->with(compact('token'));
@@ -439,13 +432,10 @@ require './phpmailer/PHPMailer_5.2.0/class.phpmailer.php';
              $v= Validator::make($request->all(), [
                  'password' => 'required|string|min:6|confirmed',
              ]);
-
-
              if ($v->fails())
              {
                  return redirect()->back()->withInput()->withErrors($v->errors());
              }
-
         $newsmstoken=$this->random_str();    
         $emailtoken=str_random(40);
 

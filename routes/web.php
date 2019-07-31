@@ -77,6 +77,7 @@ Route::post('test', 'GuestCustomerHomeController@test');
 Route::get('callback','GuestCustomerHomeController@callback');
 Route::get('subsequent','SubsequentPay@sample');
 Route::get('subsequentpay','SubsequentPay@initiatePay')->name('subsequentpay');
+Route::post('confirm','SubsequentPay@confirm');
 //share
 //share
 Route::get('share', function()

@@ -184,6 +184,9 @@ return [
         Jorenvh\Share\Providers\ShareServiceProvider::class,
         Darryldecode\Cart\CartServiceProvider::class,
         \Safaricom\Mpesa\MpesaServiceProvider::class,
+        Barryvdh\Cors\ServiceProvider::class,
+        Laravel\Passport\PassportServiceProvider::class,
+        SmoDav\Mpesa\Laravel\ServiceProvider::class,
        
             
       
@@ -241,6 +244,10 @@ return [
         'Share' => Jorenvh\Share\ShareFacade::class,
         'Cart' => Darryldecode\Cart\Facades\CartFacade::class,
         'Mpesa'=> \Safaricom\Mpesa\MpesaServiceProvider::class,
+        'STK'       => SmoDav\Mpesa\Laravel\Facades\STK::class,
+        'Simulate'  => SmoDav\Mpesa\Laravel\Facades\Simulate::class,
+        'Registrar' => SmoDav\Mpesa\Laravel\Facades\Registrar::class,
+        'Identity'  => SmoDav\Mpesa\Laravel\Facades\Identity::class,
     ],
 
 ];

@@ -15,3 +15,9 @@ use Illuminate\Support\Facades\Route;
  Route::middleware('auth:api')->get('/user', function (Request $request) {
    return $request->user();
  });
+ 
+//Route::post('callback','GuestCustomerHomeController@callback')->middleware('apiauth');
+// Route::group(['middleware' => 'auth:api'], function(){
+//  Route::post('callback','GuestCustomerHomeController@callback');
+//   });
+Route::middleware('auth:api')->post('callback','GuestCustomerHomeController@callback' );//->header('Content-Type', 'application/json');

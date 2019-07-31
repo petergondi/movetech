@@ -7,6 +7,7 @@ use App\CartOrder;
 use App\Reminders;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use App\SMSSetting;
 
 class SubsequentPay extends Controller
 {
@@ -41,28 +42,122 @@ class SubsequentPay extends Controller
             //print_r($stkPushSimulation);
             //return 
     }
+    
     }
     public function confirm(Request $request){
-        include('https://callback.4paykenya.co.ke/Mpesa/subsequent.php');
-        $id=Auth::user()->id;
-        //check if the the transaction went through
-        if($mpesareceiptcode){
-         $check_next_payment=Reminders::where('user_id',$id)->where('status','pending')->first();
-         if($check_next_payment){
-            $cartno=$check_next_payment->CartNo;
-            $not_paid=CartOrder::where('customer_id',$id)->where('CartNo', $cartno)->where('status','confirmed')->first();
-             //update the two tables on re
-            //subtract the new paid amount to the pending balance
-             $DueAmount=$not_paid->totalcost-$Amount;
-            Reminders::where('user_id',$id)->where('status','pending')->first()->update(['status'=>'confirmed']);
-             $DueAmount=$not_paid->totalcost-$Amount;
-            CartOrder::where('customer_id',$id)->where('CartNo', $cartno)->update(['DueAmount'=>$DueAmount]);
-            if($DueAmount==0){
-            CartOrder::where('customer_id',$id)->where('CartNo', $cartno)->update(['status'=>'complete']);
+             //include('https://callback.4paykenya.co.ke/Mpesa/subsequent.php');
+             $stkCallbackResponse = $request['Body']['stkCallback']['ResultCode'];
+             $json = json_decode($request['Body']['stkCallback']['CallbackMetadata'],TRUE); 
+             $Amount= $json['Body']['stkCallback']['CallbackMetadata']['Item'][0]['Value'];
+             $mpesareceiptcode= $json['Body']['stkCallback']['CallbackMetadata']['Item'][1]['Value'];
+             $date= date("m-d-Y", strtotime($json['Body']['stkCallback']['CallbackMetadata']['Item'][3]['Value'])); 
+             $time= date("h:i:s a", strtotime($json['Body']['stkCallback']['CallbackMetadata']['Item'][3]['Value']));
+             $phone= $json['Body']['stkCallback']['CallbackMetadata']['Item'][4]['Value'];
+             $id=Auth::user()->id;
+             $name=Auth::user()->name;
+             //check if the the transaction went through
+             if($stkCallbackResponse==0){
+              $check_next_payment=Reminders::where('user_id',$id)->where('status','pending')->first();
+              if($check_next_payment){
+                 $cartno=$check_next_payment->CartNo;
+                 $not_paid=CartOrder::where('customer_id',$id)->where('CartNo', $cartno)->where('status','confirmed')->first();
+                 
+                 //subtract the new paid amount to the pending balance
+                  $DueAmount=$not_paid->totalcost-$Amount;
+                 Reminders::where('user_id',$id)->where('status','pending')->first()->update(['status'=>'confirmed']);
+                  $DueAmount=$not_paid->totalcost-$Amount;
+                 CartOrder::where('customer_id',$id)->where('CartNo', $cartno)->update(['DueAmount'=>$DueAmount]);
+                 //send text once a payment is made
+                 $message='Dear '.$name.', you have successfully paid your'.$check_next_payment->schedule.'payment for Cart:'.$cartno;
+                 $settings=SMSSetting::all()->first();
+                 if(empty($settings)){
+                     $username = '';
+                     $apikey =  '';
+                     $senderid =  '';
+            }else{
+                $url="https://sms.movesms.co.ke/api/portalcompose?";
+                $username = $settings->username;
+                $apikey = $settings->apikey;
+                $senderid = $settings->senderid;
+    
+                $postData = array(
+                    'username' => $username,
+                    'api_key' => $apikey,
+                    'sender' => $senderid,
+                    'to' => $check_next_payment->phonenumber,
+                    'message' => $message,
+                    'msgtype' => 5,
+                    'dlr' => 0,
+                );
+    
+    
+                $ch = curl_init();
+                curl_setopt_array($ch, array(
+                    CURLOPT_URL => $url,
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_POST => true,
+                    CURLOPT_POSTFIELDS => $postData
+    
+                ));
+    
+                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+    
+                $output = curl_exec($ch);
+    
+                if (curl_errno($ch)) {
+                    // echo 'error:' . curl_error($ch);
+                    $output = curl_error($ch);
+                }
+    
+                curl_close($ch);
+                }
+                 if($DueAmount==0){
+                 CartOrder::where('customer_id',$id)->where('CartNo', $cartno)->update(['status'=>'complete']);
+                 //send sms when the use completes paying cart
+                 $message='Dear '.$name.', you have successfully completed paying your items'.$cartno;
+                 $settings=SMSSetting::all()->first();
+                 if(empty($settings)){
+                     $username = '';
+                     $apikey =  '';
+                     $senderid =  '';
+            }else{
+    
+                $url="https://sms.movesms.co.ke/api/portalcompose?";
+                $username = $settings->username;
+                $apikey = $settings->apikey;
+                $senderid = $settings->senderid;
+    
+                $postData = array(
+                    'username' => $username,
+                    'api_key' => $apikey,
+                    'sender' => $senderid,
+                    'to' => $check_next_payment->phonenumber,
+                    'message' => $message,
+                    'msgtype' => 5,
+                    'dlr' => 0,
+                );
+                $ch = curl_init();
+                curl_setopt_array($ch, array(
+                    CURLOPT_URL => $url,
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_POST => true,
+                    CURLOPT_POSTFIELDS => $postData
+    
+                ));
+    
+                curl_setopt($ch, CURLOPT_SSL_VERIFYHOST, 0);
+                curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, 0);
+    
+                $output = curl_exec($ch);
+    
+                if (curl_errno($ch)) {
+                    // echo 'error:' . curl_error($ch);
+                    $output = curl_error($ch);
+                }
+                curl_close($ch);
             }
-            $check_remaining_installments=Reminders::where('user_id',$id)->where('status','pending')->get();
-            if(count($check_remaining_installments)==0){
-                response()->json(['state' => 'you have finished paying for your items,you will receive information about delivery via text']);
+    
             }
          }
         
